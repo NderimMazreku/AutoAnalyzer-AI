@@ -340,8 +340,23 @@ IMPORTANT LANGUAGE INSTRUCTION:
 
 The selected language is {language}.
 
-Every user-facing sentence in your response MUST be written in {language}.
-Do not use any language other than the selected language.
+ALL user-facing text MUST be written exclusively in {language}.
+
+This applies to EVERY textual value in the JSON response, including:
+
+- riassunto
+- auto_score.spiegazione
+- every rischi.*.motivo
+- every item in punti_controllo
+- every item in problemi_modello
+- every item in test_drive
+- every item in domande_venditore
+
+The JSON property names must remain exactly as specified below,
+but ALL textual values must be in {language}.
+
+Never reuse Italian, German, English, or another language from a
+previous analysis when the selected language is {language}.
 
 Your task is to help the buyer understand what should be checked
 before purchasing this vehicle.

@@ -2819,8 +2819,10 @@ async function downloadPdfReport() {
 
 async function analizzaAuto(silent = false) {
 
-    const t =
-        translations[currentLanguage];
+    // Blocca la lingua usata per tutta questa analisi.
+    // Evita che una risposta iniziata in EN venga renderizzata dopo il passaggio a ES.
+    const requestLanguage = currentLanguage;
+    const t = translations[requestLanguage];
 
     const button =
         document.getElementById(
@@ -2840,7 +2842,7 @@ async function analizzaAuto(silent = false) {
     const dati = {
 
         lingua:
-            currentLanguage,
+            requestLanguage,
 
         marca:
             document
@@ -2997,6 +2999,11 @@ async function analizzaAuto(silent = false) {
         const result =
             await response.json();
 
+        // Se la lingua è cambiata mentre il server stava elaborando,
+        // non mostrare una risposta nella lingua precedente.
+        if (requestLanguage !== currentLanguage) {
+            return false;
+        }
 
         lastAnalysisResult = result;
 
@@ -3186,11 +3193,11 @@ async function analizzaAuto(silent = false) {
             document.getElementById("pdfButton");
 
         pdfButton.textContent =
-            currentLanguage === "de"
+            requestLanguage === "de"
                 ? "📄 PDF-Bericht herunterladen"
-                : currentLanguage === "en"
+                : requestLanguage === "en"
                     ? "📄 Download PDF Report"
-                    : currentLanguage === "it"
+                    : requestLanguage === "it"
                         ? "📄 Scarica report PDF"
                         : "📄 Descargar informe PDF";
 
