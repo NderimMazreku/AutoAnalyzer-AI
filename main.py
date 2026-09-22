@@ -1,7 +1,12 @@
 import os
 import json
+import socket
+import ipaddress
 from datetime import datetime
+from urllib.parse import urlparse
 
+import requests
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
@@ -9,13 +14,22 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 
+# ==========================================
+# CONFIGURAZIONE
+# ==========================================
+
 load_dotenv()
 
 api_key = os.getenv("OPENAI_API_KEY")
+
 client = OpenAI(api_key=api_key) if api_key else None
 
 app = FastAPI(title="AutoAnalyzer AI")
 
+
+# ==========================================
+# MODELLI
+# ==========================================
 
 class AutoData(BaseModel):
     marca: str
@@ -30,16 +44,26 @@ class AutoData(BaseModel):
     lingua: str = "de"
 
 
+class ListingURL(BaseModel):
+    url: str
+    lingua: str = "de"
+
+
+# ==========================================
+# HOME
+# ==========================================
+
 @app.get("/")
 def home():
     return FileResponse("index.html")
 
 
 # ==========================================
-# TRADUZIONI
+# LINGUE
 # ==========================================
 
 def get_language_name(lang):
+
     languages = {
         "de": "German",
         "en": "English",
@@ -157,7 +181,7 @@ def get_local_text(lang):
 
 
 # ==========================================
-# ANALISI AI
+# ANALISI AI DEL VEICOLO
 # ==========================================
 
 def genera_analisi_ai(auto: AutoData):
@@ -245,6 +269,7 @@ Rules:
             testo = testo.strip()
 
         dati_ai = json.loads(testo)
+
         dati_ai["disponibile"] = True
 
         return dati_ai
@@ -260,23 +285,26 @@ Rules:
 
 
 # ==========================================
-# ENDPOINT ANALISI
+# ANALISI PRINCIPALE
 # ==========================================
 
 @app.post("/analyze")
 def analyze_auto(auto: AutoData):
 
-    # Controllo lingua
     if auto.lingua not in ["de", "en", "it"]:
         auto.lingua = "de"
 
     local = get_local_text(auto.lingua)
 
-    # Età veicolo
     anno_corrente = datetime.now().year
-    eta = max(anno_corrente - auto.anno, 0)
 
-    # Km annui
+    eta = max(
+        anno_corrente - auto.anno,
+        0
+    )
+
+    # KM annui
+
     if eta > 0:
         km_annui = auto.km / eta
     else:
@@ -292,6 +320,7 @@ def analyze_auto(auto: AutoData):
         valutazione_km = local["km_high"]
 
     # Prezzo per km
+
     if auto.km > 0:
         prezzo_per_km = auto.prezzo / auto.km
     else:
@@ -301,20 +330,32 @@ def analyze_auto(auto: AutoData):
     # FINANZIAMENTO
     # ==========================================
 
-    capitale = max(auto.prezzo - auto.anticipo, 0)
+    capitale = max(
+        auto.prezzo - auto.anticipo,
+        0
+    )
 
-    tasso_mensile = (auto.tasso_annuo / 100) / 12
+    tasso_mensile = (
+        auto.tasso_annuo / 100
+    ) / 12
 
     if capitale == 0:
+
         rata = 0
 
     elif auto.durata_mesi <= 0:
+
         rata = 0
 
     elif tasso_mensile == 0:
-        rata = capitale / auto.durata_mesi
+
+        rata = (
+            capitale /
+            auto.durata_mesi
+        )
 
     else:
+
         rata = (
             capitale
             * tasso_mensile
@@ -326,8 +367,13 @@ def analyze_auto(auto: AutoData):
             )
         )
 
-    totale_rate = rata * auto.durata_mesi
-    interessi = totale_rate - capitale
+    totale_rate = (
+        rata * auto.durata_mesi
+    )
+
+    interessi = (
+        totale_rate - capitale
+    )
 
     # ==========================================
     # AI
@@ -365,32 +411,40 @@ def analyze_auto(auto: AutoData):
     else:
 
         domande_venditore = local["fallback_questions"]
-        controlli_specifici = local["fallback_checks"]
-        problemi_modello = []
-        test_drive = []
-        riassunto_ai = ""
 
-    # ==========================================
-    # RISPOSTA
-    # ==========================================
+        controlli_specifici = local["fallback_checks"]
+
+        problemi_modello = []
+
+        test_drive = []
+
+        riassunto_ai = ""
 
     return {
 
-        "auto": f"{auto.marca} {auto.modello}",
+        "auto":
+            f"{auto.marca} {auto.modello}",
 
-        "lingua": auto.lingua,
+        "lingua":
+            auto.lingua,
 
-        "anno": auto.anno,
+        "anno":
+            auto.anno,
 
-        "eta_anni": eta,
+        "eta_anni":
+            eta,
 
-        "prezzo": round(auto.prezzo, 2),
+        "prezzo":
+            round(auto.prezzo, 2),
 
-        "km": auto.km,
+        "km":
+            auto.km,
 
-        "potenza_cv": auto.potenza_cv,
+        "potenza_cv":
+            auto.potenza_cv,
 
-        "prezzo_per_km": round(prezzo_per_km, 2),
+        "prezzo_per_km":
+            round(prezzo_per_km, 2),
 
         "finanziamento": {
 
@@ -449,5 +503,484 @@ def analyze_auto(auto: AutoData):
                 riassunto_ai
         },
 
-        "ai": analisi_ai
+        "ai":
+            analisi_ai
     }
+
+
+# ==========================================
+# ESTRAZIONE DATI ANNUNCIO CON AI
+# ==========================================
+
+def estrai_dati_annuncio_ai(
+    titolo,
+    testo,
+    lingua="de"
+):
+
+    if client is None:
+
+        return {
+            "success": False,
+            "errore": "OpenAI API not configured."
+        }
+
+    if lingua not in ["de", "en", "it"]:
+        lingua = "de"
+
+    language = get_language_name(lingua)
+
+    prompt = f"""
+You extract structured vehicle information from a used-car listing.
+
+LISTING TITLE:
+{titolo}
+
+LISTING TEXT:
+{testo}
+
+Extract ONLY information that is actually present or can be clearly
+identified from the listing.
+
+IMPORTANT RULES:
+
+- Never invent missing information.
+- Prices must be numbers only, expressed in EUR.
+- Mileage must be an integer representing kilometers.
+- Power must be PS/HP, not kW.
+- Year should represent first registration or vehicle year when clearly identifiable.
+- If a numeric value cannot be identified, return null.
+- If a text value cannot be identified, return null.
+- Keep the model name concise.
+- Do not mistake financing payments for the vehicle purchase price.
+- Do not mistake engine displacement for mileage.
+- Do not mistake kW for PS.
+- Detect modifications such as Stage 1, Stage 2, Stage 3, tuning,
+  aftermarket exhaust, suspension modifications and aftermarket wheels.
+- Detect accident information only when explicitly stated.
+- Detect TÜV/HU information when explicitly present.
+- Detect transmission when present.
+- Detect fuel type when present.
+
+Return ONLY valid JSON.
+
+Use exactly this structure:
+
+{{
+    "marca": null,
+    "modello": null,
+    "anno": null,
+    "prezzo": null,
+    "km": null,
+    "potenza_cv": null,
+    "carburante": null,
+    "cambio": null,
+    "tuv": null,
+    "incidenti": null,
+    "modifiche": [],
+    "informazioni_extra": []
+}}
+
+The content of "modifiche" and "informazioni_extra"
+must be written in {language}.
+
+JSON only.
+"""
+
+    try:
+
+        response = client.responses.create(
+            model="gpt-5.6-luna",
+            reasoning={"effort": "low"},
+            input=prompt
+        )
+
+        contenuto = response.output_text.strip()
+
+        if contenuto.startswith("```"):
+
+            contenuto = contenuto.replace(
+                "```json",
+                ""
+            )
+
+            contenuto = contenuto.replace(
+                "```",
+                ""
+            )
+
+            contenuto = contenuto.strip()
+
+        dati = json.loads(contenuto)
+
+        return {
+            "success": True,
+            "dati": dati
+        }
+
+    except Exception as e:
+
+        print(
+            "ERRORE ESTRAZIONE AI:",
+            str(e)
+        )
+
+        return {
+            "success": False,
+            "errore": "AI extraction failed."
+        }
+
+
+# ==========================================
+# CONTROLLO URL
+# ==========================================
+
+def url_pubblico_valido(url):
+
+    try:
+
+        parsed = urlparse(url)
+
+        if parsed.scheme not in [
+            "http",
+            "https"
+        ]:
+            return False, "URL non valido."
+
+        if not parsed.hostname:
+            return False, "URL non valido."
+
+        hostname = parsed.hostname.lower()
+
+        if hostname in [
+            "localhost",
+            "localhost.localdomain"
+        ]:
+            return False, "Indirizzo non consentito."
+
+        addresses = socket.getaddrinfo(
+            hostname,
+            None
+        )
+
+        for address in addresses:
+
+            ip_string = address[4][0]
+
+            ip = ipaddress.ip_address(
+                ip_string
+            )
+
+            if (
+                ip.is_private
+                or ip.is_loopback
+                or ip.is_link_local
+                or ip.is_reserved
+                or ip.is_multicast
+                or ip.is_unspecified
+            ):
+
+                return (
+                    False,
+                    "Indirizzo non consentito."
+                )
+
+        return True, None
+
+    except Exception as e:
+
+        print(
+            "ERRORE CONTROLLO URL:",
+            str(e)
+        )
+
+        return (
+            False,
+            "Impossibile verificare l'indirizzo."
+        )
+
+
+# ==========================================
+# ESTRAZIONE ANNUNCIO DA URL
+# ==========================================
+
+@app.post("/extract-listing")
+def extract_listing(data: ListingURL):
+
+    url = data.url.strip()
+
+    if data.lingua not in [
+        "de",
+        "en",
+        "it"
+    ]:
+        data.lingua = "de"
+
+    valido, errore = url_pubblico_valido(
+        url
+    )
+
+    if not valido:
+
+        return {
+            "success": False,
+            "errore": errore
+        }
+
+    headers = {
+
+        "User-Agent":
+            "Mozilla/5.0 "
+            "(Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 "
+            "(KHTML, like Gecko) "
+            "Chrome/120.0 Safari/537.36",
+
+        "Accept":
+            "text/html,application/xhtml+xml,"
+            "application/xml;q=0.9,"
+            "image/avif,image/webp,*/*;q=0.8",
+
+        "Accept-Language":
+            "de-DE,de;q=0.9,en;q=0.8"
+    }
+
+    try:
+
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=10,
+            allow_redirects=False
+        )
+
+        # Non seguiamo automaticamente redirect,
+        # perché prima dobbiamo verificare il nuovo URL.
+
+        if response.status_code in [
+            301,
+            302,
+            303,
+            307,
+            308
+        ]:
+
+            redirect_url = response.headers.get(
+                "Location"
+            )
+
+            if not redirect_url:
+
+                return {
+                    "success": False,
+                    "errore":
+                        "Redirect senza destinazione."
+                }
+
+            from urllib.parse import urljoin
+
+            redirect_url = urljoin(
+                url,
+                redirect_url
+            )
+
+            valido_redirect, errore_redirect = (
+                url_pubblico_valido(
+                    redirect_url
+                )
+            )
+
+            if not valido_redirect:
+
+                return {
+                    "success": False,
+                    "errore":
+                        errore_redirect
+                }
+
+            response = requests.get(
+                redirect_url,
+                headers=headers,
+                timeout=10,
+                allow_redirects=False
+            )
+
+            url = redirect_url
+
+        if response.status_code != 200:
+
+            return {
+                "success": False,
+                "errore":
+                    "La pagina ha risposto con "
+                    f"codice {response.status_code}."
+            }
+
+        # Evita download troppo grandi
+
+        content_length = (
+            response.headers.get(
+                "Content-Length"
+            )
+        )
+
+        if content_length:
+
+            try:
+
+                if int(content_length) > 5_000_000:
+
+                    return {
+                        "success": False,
+                        "errore":
+                            "Pagina troppo grande."
+                    }
+
+            except ValueError:
+                pass
+
+        if len(response.content) > 5_000_000:
+
+            return {
+                "success": False,
+                "errore":
+                    "Pagina troppo grande."
+            }
+
+        # Accettiamo solo HTML
+
+        content_type = (
+            response.headers
+            .get("Content-Type", "")
+            .lower()
+        )
+
+        if (
+            "text/html" not in content_type
+            and
+            "application/xhtml+xml"
+            not in content_type
+        ):
+
+            return {
+                "success": False,
+                "errore":
+                    "Il link non contiene una pagina HTML."
+            }
+
+        # ==========================================
+        # PARSING HTML
+        # ==========================================
+
+        soup = BeautifulSoup(
+            response.text,
+            "html.parser"
+        )
+
+        for element in soup(
+            [
+                "script",
+                "style",
+                "noscript",
+                "svg"
+            ]
+        ):
+            element.decompose()
+
+        title = ""
+
+        if soup.title:
+
+            title = soup.title.get_text(
+                " ",
+                strip=True
+            )
+
+        text = soup.get_text(
+            " ",
+            strip=True
+        )
+
+        # Limitiamo il testo inviato all'AI
+
+        text = text[:15000]
+
+        if not title and not text:
+
+            return {
+                "success": False,
+                "errore":
+                    "Non è stato possibile leggere "
+                    "il contenuto dell'annuncio."
+            }
+
+        # ==========================================
+        # ESTRAZIONE AI
+        # ==========================================
+
+        estrazione_ai = (
+            estrai_dati_annuncio_ai(
+                title,
+                text,
+                data.lingua
+            )
+        )
+
+        if not estrazione_ai.get(
+            "success"
+        ):
+
+            return {
+                "success": False,
+                "errore":
+                    estrazione_ai.get(
+                        "errore",
+                        "AI extraction failed."
+                    )
+            }
+
+        return {
+
+            "success": True,
+
+            "url": url,
+
+            "titolo": title,
+
+            "dati_estratti":
+                estrazione_ai["dati"]
+        }
+
+    except requests.Timeout:
+
+        return {
+            "success": False,
+            "errore":
+                "Timeout durante la lettura dell'annuncio."
+        }
+
+    except requests.RequestException as e:
+
+        print(
+            "ERRORE DOWNLOAD ANNUNCIO:",
+            str(e)
+        )
+
+        return {
+            "success": False,
+            "errore":
+                "Non è stato possibile leggere l'annuncio."
+        }
+
+    except Exception as e:
+
+        print(
+            "ERRORE EXTRACT LISTING:",
+            str(e)
+        )
+
+        return {
+            "success": False,
+            "errore":
+                "Errore durante l'analisi dell'annuncio."
+        }
