@@ -1,762 +1,1303 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoAnalyzer AI</title>
 
-    <style>
-        * { box-sizing: border-box; }
+<meta charset="UTF-8">
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            color: #1f2937;
-        }
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-        header {
-            background: #111827;
-            color: white;
-            padding: 22px 20px 35px;
-        }
+<title>AutoAnalyzer AI</title>
 
-        .header-top {
-            max-width: 950px;
-            margin: auto;
-            display: flex;
-            justify-content: flex-end;
-        }
+<style>
 
-        .languages {
-            display: flex;
-            gap: 8px;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        button {
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
 
-        .lang-btn {
-            padding: 7px 11px;
-            background: #374151;
-            color: white;
-            border-radius: 6px;
-        }
+header {
+    background: #111827;
+    color: white;
+    padding: 22px 20px 35px;
+}
 
-        .lang-btn.active {
-            background: #2563eb;
-        }
+.header-top {
+    max-width: 950px;
+    margin: auto;
+    display: flex;
+    justify-content: flex-end;
+}
 
-        .hero {
-            text-align: center;
-            margin-top: 15px;
-        }
+.languages {
+    display: flex;
+    gap: 8px;
+}
 
-        .hero h1 {
-            margin: 0;
-            font-size: 34px;
-        }
+button {
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
 
-        .hero p {
-            margin: 8px 0 0;
-            color: #d1d5db;
-        }
+.lang-btn {
+    padding: 7px 11px;
+    background: #374151;
+    color: white;
+    border-radius: 6px;
+}
 
-        .container {
-            max-width: 950px;
-            margin: 35px auto;
-            padding: 0 20px 60px;
-        }
+.lang-btn.active {
+    background: #2563eb;
+}
 
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 14px;
-            box-shadow: 0 4px 18px rgba(0,0,0,.08);
-        }
+.hero {
+    text-align: center;
+    margin-top: 15px;
+}
 
-        h2 { margin-top: 0; }
-        h3 { margin-top: 28px; }
+.hero h1 {
+    margin: 0;
+    font-size: 34px;
+}
 
-        .import-box {
-            padding: 24px;
-            margin-bottom: 30px;
-            border: 1px solid #bfdbfe;
-            background: #eff6ff;
-            border-radius: 12px;
-        }
+.hero p {
+    margin: 8px 0 0;
+    color: #d1d5db;
+}
 
-        .import-box p {
-            color: #4b5563;
-            line-height: 1.5;
-        }
+.container {
+    max-width: 950px;
+    margin: 35px auto;
+    padding: 0 20px 60px;
+}
 
-        .url-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 10px;
-        }
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.08);
+}
 
-        .url-row button {
-            margin: 0;
-            white-space: nowrap;
-        }
+h2 {
+    margin-top: 0;
+}
 
-        .import-status {
-            display: none;
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            line-height: 1.5;
-        }
+h3 {
+    margin-top: 28px;
+}
 
-        .import-success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
+.import-box {
+    padding: 24px;
+    margin-bottom: 30px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    border-radius: 12px;
+}
 
-        .import-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
+.import-box p {
+    color: #4b5563;
+    line-height: 1.5;
+}
 
-        .listing-info {
-            display: none;
-            margin-top: 18px;
-            padding: 18px;
-            background: white;
-            border-radius: 10px;
-            border: 1px solid #dbeafe;
-        }
+.url-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+}
 
-        .listing-info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
+.url-row button {
+    margin: 0;
+    white-space: nowrap;
+}
 
-        .listing-info-item {
-            padding: 10px;
-            background: #f9fafb;
-            border-radius: 7px;
-        }
+.import-status {
+    display: none;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    line-height: 1.5;
+}
 
-        .listing-info-item strong {
-            display: block;
-            font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 4px;
-        }
+.import-success {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
 
-        .modifications-box {
-            display: none;
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 8px;
-            background: #fff7ed;
-            border: 1px solid #fed7aa;
-        }
+.import-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
 
-        .modifications-box strong {
-            color: #9a3412;
-        }
+.listing-info {
+    display: none;
+    margin-top: 18px;
+    padding: 18px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #dbeafe;
+}
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-        }
+.listing-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
 
-        .field {
-            display: flex;
-            flex-direction: column;
-        }
+.listing-info-item {
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 7px;
+}
 
-        label {
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
+.listing-info-item strong {
+    display: block;
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 15px;
-        }
+.modifications-box {
+    display: none;
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+}
 
-        input:focus {
-            outline: none;
-            border-color: #2563eb;
-        }
+.modifications-box strong {
+    color: #9a3412;
+}
 
-        .primary-button {
-            width: 100%;
-            margin-top: 28px;
-            padding: 16px;
-            border-radius: 9px;
-            background: #2563eb;
-            color: white;
-            font-size: 17px;
-        }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
 
-        .primary-button:hover {
-            background: #1d4ed8;
-        }
+.field {
+    display: flex;
+    flex-direction: column;
+}
 
-        .import-button {
-            padding: 12px 18px;
-            border-radius: 8px;
-            background: #2563eb;
-            color: white;
-        }
+label {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
 
-        .import-button:hover {
-            background: #1d4ed8;
-        }
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+}
 
-        button:disabled {
-            opacity: .6;
-            cursor: wait;
-        }
+input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
 
-        .section-result {
-            display: none;
-            margin-top: 25px;
-            padding: 25px;
-            background: #f9fafb;
-            border-radius: 12px;
-        }
+.primary-button {
+    width: 100%;
+    margin-top: 28px;
+    padding: 16px;
+    border-radius: 9px;
+    background: #2563eb;
+    color: white;
+    font-size: 17px;
+}
 
-        .price {
-            font-size: 32px;
-            font-weight: bold;
-            color: #2563eb;
-            margin: 8px 0 20px;
-        }
+.primary-button:hover {
+    background: #1d4ed8;
+}
 
-        .result-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 20px;
-        }
+.import-button {
+    padding: 12px 18px;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+}
 
-        .result-box {
-            background: white;
-            padding: 16px;
-            border-radius: 9px;
-            border: 1px solid #e5e7eb;
-        }
+.import-button:hover {
+    background: #1d4ed8;
+}
 
-        .result-box strong {
-            display: block;
-            margin-bottom: 8px;
-        }
+button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
 
-        .warning-section {
-            display: none;
-            margin-top: 25px;
-            padding: 25px;
-            background: #fffbeb;
-            border: 1px solid #fde68a;
-            border-radius: 12px;
-        }
+.section-result {
+    display: none;
+    margin-top: 25px;
+    padding: 25px;
+    background: #f9fafb;
+    border-radius: 12px;
+}
 
-        .warning-section h2 {
-            color: #92400e;
-        }
+.price {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2563eb;
+    margin: 8px 0 20px;
+}
 
-        ul { padding-left: 22px; }
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+}
 
-        li {
-            margin-bottom: 10px;
-            line-height: 1.5;
-        }
+.result-box {
+    background: white;
+    padding: 16px;
+    border-radius: 9px;
+    border: 1px solid #e5e7eb;
+}
 
-        .error {
-            display: none;
-            margin-top: 20px;
-            padding: 15px;
-            background: #fee2e2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            color: #991b1b;
-        }
+.result-box strong {
+    display: block;
+    margin-bottom: 8px;
+}
 
-        .disclaimer {
-            margin-top: 30px;
-            font-size: 13px;
-            color: #6b7280;
-            line-height: 1.5;
-        }
+.summary-box {
+    margin-top: 20px;
+    padding: 17px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    line-height: 1.6;
+}
 
-        @media(max-width: 650px) {
-            .grid,
-            .result-grid,
-            .listing-info-grid,
-            .url-row {
-                grid-template-columns: 1fr;
-            }
+.warning-section {
+    display: none;
+    margin-top: 25px;
+    padding: 25px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+}
 
-            .card { padding: 20px; }
+.warning-section h2 {
+    color: #92400e;
+}
 
-            .hero h1 { font-size: 28px; }
+.risk-item {
+    margin-top: 14px;
+    padding: 16px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
 
-            .import-button { width: 100%; }
-        }
-    </style>
+.risk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.risk-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.risk-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.risk-low {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.risk-medium {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.risk-high {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.risk-reason {
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+ul {
+    padding-left: 22px;
+}
+
+li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.error {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    color: #991b1b;
+}
+
+.disclaimer {
+    margin-top: 30px;
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+@media(max-width: 650px) {
+
+    .grid,
+    .result-grid,
+    .listing-info-grid,
+    .url-row {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+    }
+
+    .import-button {
+        width: 100%;
+    }
+}
+
+</style>
+
 </head>
+
 
 <body>
 
+
 <header>
-    <div class="header-top">
-        <div class="languages">
-            <button class="lang-btn active" id="btn-de"
-                    onclick="setLanguage('de')">🇩🇪 DE</button>
 
-            <button class="lang-btn" id="btn-en"
-                    onclick="setLanguage('en')">🇬🇧 EN</button>
+<div class="header-top">
 
-            <button class="lang-btn" id="btn-it"
-                    onclick="setLanguage('it')">🇮🇹 IT</button>
-        </div>
+    <div class="languages">
+
+        <button
+            class="lang-btn active"
+            id="btn-de"
+            onclick="setLanguage('de')"
+        >
+            🇩🇪 DE
+        </button>
+
+        <button
+            class="lang-btn"
+            id="btn-en"
+            onclick="setLanguage('en')"
+        >
+            🇬🇧 EN
+        </button>
+
+        <button
+            class="lang-btn"
+            id="btn-it"
+            onclick="setLanguage('it')"
+        >
+            🇮🇹 IT
+        </button>
+
     </div>
 
-    <div class="hero">
-        <h1>🚗 AutoAnalyzer AI</h1>
-        <p id="subtitle"></p>
-    </div>
+</div>
+
+
+<div class="hero">
+
+    <h1>🚗 AutoAnalyzer AI</h1>
+
+    <p id="subtitle"></p>
+
+</div>
+
 </header>
 
 
 <div class="container">
+
 <div class="card">
 
-    <!-- IMPORT ANNUNCIO -->
 
-    <div class="import-box">
+<!-- IMPORT -->
 
-        <h2 id="importTitle"></h2>
+<div class="import-box">
 
-        <p id="importDescription"></p>
+    <h2 id="importTitle"></h2>
 
-        <div class="url-row">
-            <input
-                id="listingUrl"
-                type="url"
-                placeholder="https://www.kleinanzeigen.de/s-anzeige/..."
-            >
+    <p id="importDescription"></p>
 
-            <button
-                class="import-button"
-                id="importButton"
-                onclick="importListing()">
-            </button>
-        </div>
+    <div class="url-row">
 
-        <div id="importStatus" class="import-status"></div>
+        <input
+            id="listingUrl"
+            type="url"
+            placeholder="https://www.kleinanzeigen.de/s-anzeige/..."
+        >
 
-        <div id="listingInfo" class="listing-info">
-
-            <div class="listing-info-grid">
-
-                <div class="listing-info-item">
-                    <strong id="fuelInfoLabel"></strong>
-                    <span id="fuelInfo">-</span>
-                </div>
-
-                <div class="listing-info-item">
-                    <strong id="gearboxInfoLabel"></strong>
-                    <span id="gearboxInfo">-</span>
-                </div>
-
-                <div class="listing-info-item">
-                    <strong id="tuvInfoLabel"></strong>
-                    <span id="tuvInfo">-</span>
-                </div>
-
-                <div class="listing-info-item">
-                    <strong id="accidentInfoLabel"></strong>
-                    <span id="accidentInfo">-</span>
-                </div>
-
-            </div>
-
-            <div id="modificationsBox" class="modifications-box">
-                <strong id="modificationsLabel"></strong>
-                <ul id="modificationsList"></ul>
-            </div>
-
-        </div>
+        <button
+            class="import-button"
+            id="importButton"
+            onclick="importListing()"
+        ></button>
 
     </div>
 
 
-    <!-- DATI AUTO -->
-
-    <h2 id="vehicleTitle"></h2>
-
-    <div class="grid">
-
-        <div class="field">
-            <label id="labelBrand"></label>
-            <input id="marca" value="Audi">
-        </div>
-
-        <div class="field">
-            <label id="labelModel"></label>
-            <input id="modello" value="A7 50 TDI quattro">
-        </div>
-
-        <div class="field">
-            <label id="labelYear"></label>
-            <input id="anno" type="number" value="2020">
-        </div>
-
-        <div class="field">
-            <label id="labelPrice"></label>
-            <input id="prezzo" type="number" value="22980">
-        </div>
-
-        <div class="field">
-            <label id="labelKm"></label>
-            <input id="km" type="number" value="59315">
-        </div>
-
-        <div class="field">
-            <label id="labelPower"></label>
-            <input id="potenza" type="number" value="286">
-        </div>
-
-    </div>
+    <div
+        id="importStatus"
+        class="import-status"
+    ></div>
 
 
-    <!-- FINANZIAMENTO -->
+    <div
+        id="listingInfo"
+        class="listing-info"
+    >
 
-    <h2 id="financeTitle" style="margin-top:35px;"></h2>
+        <div class="listing-info-grid">
 
-    <div class="grid">
+            <div class="listing-info-item">
 
-        <div class="field">
-            <label id="labelDeposit"></label>
-            <input id="anticipo" type="number" value="2000">
-        </div>
+                <strong id="fuelInfoLabel"></strong>
 
-        <div class="field">
-            <label id="labelMonths"></label>
-            <input id="durata" type="number" value="84">
-        </div>
+                <span id="fuelInfo">—</span>
 
-        <div class="field">
-            <label id="labelInterest"></label>
-            <input id="tasso" type="number" step="0.1" value="8">
-        </div>
-
-    </div>
-
-    <button
-        class="primary-button"
-        id="analyzeButton"
-        onclick="analizzaAuto()">
-    </button>
-
-    <div class="error" id="errorBox"></div>
-
-
-    <!-- FINANZIAMENTO RISULTATO -->
-
-    <div class="section-result" id="result">
-
-        <h2 id="nomeAuto"></h2>
-
-        <p id="monthlyPaymentLabel"></p>
-
-        <div class="price" id="rata"></div>
-
-        <div class="result-grid">
-
-            <div class="result-box">
-                <strong id="financedLabel"></strong>
-                <span id="capitale"></span>
             </div>
 
-            <div class="result-box">
-                <strong id="interestTotalLabel"></strong>
-                <span id="interessi"></span>
+
+            <div class="listing-info-item">
+
+                <strong id="gearboxInfoLabel"></strong>
+
+                <span id="gearboxInfo">—</span>
+
             </div>
 
-            <div class="result-box">
-                <strong id="paymentsTotalLabel"></strong>
-                <span id="totaleRate"></span>
+
+            <div class="listing-info-item">
+
+                <strong id="tuvInfoLabel"></strong>
+
+                <span id="tuvInfo">—</span>
+
             </div>
 
-            <div class="result-box">
-                <strong id="totalCostLabel"></strong>
-                <span id="costoTotale"></span>
+
+            <div class="listing-info-item">
+
+                <strong id="accidentInfoLabel"></strong>
+
+                <span id="accidentInfo">—</span>
+
             </div>
+
+        </div>
+
+
+        <div
+            id="modificationsBox"
+            class="modifications-box"
+        >
+
+            <strong id="modificationsLabel"></strong>
+
+            <ul id="modificationsList"></ul>
 
         </div>
 
     </div>
-
-
-    <!-- ANALISI -->
-
-    <div class="section-result" id="analysisResult">
-
-        <h2 id="analysisTitle"></h2>
-
-        <div class="result-grid">
-
-            <div class="result-box">
-                <strong id="ageLabel"></strong>
-                <span id="etaAuto"></span>
-            </div>
-
-            <div class="result-box">
-                <strong id="yearlyKmLabel"></strong>
-                <span id="kmAnnui"></span>
-            </div>
-
-            <div class="result-box">
-                <strong id="mileageLabel"></strong>
-                <span id="valutazioneKm"></span>
-            </div>
-
-            <div class="result-box">
-                <strong id="priceKmLabel"></strong>
-                <span id="prezzoKm"></span>
-            </div>
-
-        </div>
-
-        <h3 id="checklistTitle"></h3>
-        <ul id="checklist"></ul>
-
-        <h3 id="questionsTitle"></h3>
-        <ul id="domandeVenditore"></ul>
-
-    </div>
-
-
-    <!-- PUNTI SPECIFICI -->
-
-    <div class="warning-section" id="specificResult">
-
-        <h2 id="specificTitle"></h2>
-
-        <p id="specificDescription"></p>
-
-        <ul id="controlliSpecifici"></ul>
-
-    </div>
-
-
-    <div class="disclaimer" id="disclaimer"></div>
 
 </div>
+
+
+<!-- DATI AUTO -->
+
+<h2 id="vehicleTitle"></h2>
+
+
+<div class="grid">
+
+    <div class="field">
+
+        <label id="labelBrand"></label>
+
+        <input
+            id="marca"
+            value="Audi"
+        >
+
+    </div>
+
+
+    <div class="field">
+
+        <label id="labelModel"></label>
+
+        <input
+            id="modello"
+            value="A7 50 TDI quattro"
+        >
+
+    </div>
+
+
+    <div class="field">
+
+        <label id="labelYear"></label>
+
+        <input
+            id="anno"
+            type="number"
+            value="2020"
+        >
+
+    </div>
+
+
+    <div class="field">
+
+        <label id="labelPrice"></label>
+
+        <input
+            id="prezzo"
+            type="number"
+            value="22980"
+        >
+
+    </div>
+
+
+    <div class="field">
+
+        <label id="labelKm"></label>
+
+        <input
+            id="km"
+            type="number"
+            value="59315"
+        >
+
+    </div>
+
+
+    <div class="field">
+
+        <label id="labelPower"></label>
+
+        <input
+            id="potenza"
+            type="number"
+            value="286"
+        >
+
+    </div>
+
+</div>
+
+
+<!-- FINANZIAMENTO -->
+
+<h2
+    id="financeTitle"
+    style="margin-top:35px;"
+></h2>
+
+
+<div class="grid">
+
+    <div class="field">
+
+        <label id="labelDeposit"></label>
+
+        <input
+            id="anticipo"
+            type="number"
+            value="2000"
+        >
+
+    </div>
+
+
+    <div class="field">
+
+        <label id="labelMonths"></label>
+
+        <input
+            id="durata"
+            type="number"
+            value="84"
+        >
+
+    </div>
+
+
+    <div class="field">
+
+        <label id="labelInterest"></label>
+
+        <input
+            id="tasso"
+            type="number"
+            step="0.1"
+            value="8"
+        >
+
+    </div>
+
+</div>
+
+
+<button
+    class="primary-button"
+    id="analyzeButton"
+    onclick="analizzaAuto()"
+></button>
+
+
+<div
+    class="error"
+    id="errorBox"
+></div>
+
+
+<!-- RISULTATO FINANZIAMENTO -->
+
+<div
+    class="section-result"
+    id="result"
+>
+
+    <h2 id="nomeAuto"></h2>
+
+    <p id="monthlyPaymentLabel"></p>
+
+    <div
+        class="price"
+        id="rata"
+    ></div>
+
+
+    <div class="result-grid">
+
+        <div class="result-box">
+
+            <strong id="financedLabel"></strong>
+
+            <span id="capitale"></span>
+
+        </div>
+
+
+        <div class="result-box">
+
+            <strong id="interestTotalLabel"></strong>
+
+            <span id="interessi"></span>
+
+        </div>
+
+
+        <div class="result-box">
+
+            <strong id="paymentsTotalLabel"></strong>
+
+            <span id="totaleRate"></span>
+
+        </div>
+
+
+        <div class="result-box">
+
+            <strong id="totalCostLabel"></strong>
+
+            <span id="costoTotale"></span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- AI RISIKOCHECK -->
+
+<div
+    class="section-result"
+    id="riskResult"
+>
+
+    <h2 id="riskTitle"></h2>
+
+    <p id="riskDescription"></p>
+
+    <div id="riskContainer"></div>
+
+</div>
+
+
+<!-- ANALISI -->
+
+<div
+    class="section-result"
+    id="analysisResult"
+>
+
+    <h2 id="analysisTitle"></h2>
+
+    <div
+        id="summaryBox"
+        class="summary-box"
+        style="display:none;"
+    ></div>
+
+
+    <div class="result-grid">
+
+        <div class="result-box">
+
+            <strong id="ageLabel"></strong>
+
+            <span id="etaAuto"></span>
+
+        </div>
+
+
+        <div class="result-box">
+
+            <strong id="yearlyKmLabel"></strong>
+
+            <span id="kmAnnui"></span>
+
+        </div>
+
+
+        <div class="result-box">
+
+            <strong id="mileageLabel"></strong>
+
+            <span id="valutazioneKm"></span>
+
+        </div>
+
+
+        <div class="result-box">
+
+            <strong id="priceKmLabel"></strong>
+
+            <span id="prezzoKm"></span>
+
+        </div>
+
+    </div>
+
+
+    <h3 id="checklistTitle"></h3>
+
+    <ul id="checklist"></ul>
+
+
+    <h3 id="questionsTitle"></h3>
+
+    <ul id="domandeVenditore"></ul>
+
+</div>
+
+
+<!-- PUNTI SPECIFICI -->
+
+<div
+    class="warning-section"
+    id="specificResult"
+>
+
+    <h2 id="specificTitle"></h2>
+
+    <p id="specificDescription"></p>
+
+    <ul id="controlliSpecifici"></ul>
+
+</div>
+
+
+<div
+    class="disclaimer"
+    id="disclaimer"
+></div>
+
+
+</div>
+
 </div>
 
 
 <script>
 
+
 let currentLanguage = "de";
+
 let importedListingData = null;
 
 
 const translations = {
 
-    de: {
-        subtitle: "Gebrauchtwagen vor dem Kauf intelligent analysieren",
+de: {
 
-        importTitle: "🔗 Fahrzeuganzeige importieren",
-        importDescription:
-            "Füge den Link einer Fahrzeuganzeige ein. AutoAnalyzer versucht, die Fahrzeugdaten automatisch zu erkennen.",
-        importButton: "Anzeige importieren",
-        importing: "Wird importiert...",
-        importSuccess: "✓ Fahrzeugdaten wurden erkannt und übernommen.",
-        importError: "Die Anzeige konnte nicht importiert werden.",
+    subtitle:
+        "Gebrauchtwagen vor dem Kauf intelligent analysieren",
 
-        fuel: "Kraftstoff",
-        gearbox: "Getriebe",
-        tuv: "TÜV / HU",
-        accident: "Unfallangaben",
-        modifications: "⚠️ Erkannte Änderungen / Tuning",
+    importTitle:
+        "🔗 Fahrzeuganzeige importieren",
 
-        vehicleTitle: "🚘 Fahrzeugdaten",
-        brand: "Marke",
-        model: "Modell",
-        year: "Baujahr",
-        price: "Kaufpreis (€)",
-        km: "Kilometerstand",
-        power: "Leistung (PS)",
+    importDescription:
+        "Füge den Link einer Fahrzeuganzeige ein. AutoAnalyzer versucht, die Fahrzeugdaten automatisch zu erkennen.",
 
-        financeTitle: "💶 Finanzierung",
-        deposit: "Anzahlung (€)",
-        months: "Laufzeit (Monate)",
-        interest: "Jahreszins (%)",
+    importButton:
+        "Anzeige importieren",
 
-        analyze: "🔎 Fahrzeug analysieren",
-        loading: "⏳ Analyse läuft...",
+    importing:
+        "Wird importiert...",
 
-        monthlyPayment: "Geschätzte monatliche Rate",
-        financed: "Finanzierter Betrag",
-        interestTotal: "Zinsen gesamt",
-        paymentsTotal: "Summe der Raten",
-        totalCost: "Gesamtkosten",
+    importSuccess:
+        "✓ Fahrzeugdaten wurden erkannt und übernommen.",
 
-        analysisTitle: "📊 Fahrzeuganalyse",
-        age: "Fahrzeugalter",
-        yearlyKm: "Km pro Jahr",
-        mileage: "Kilometerbewertung",
-        priceKm: "Preis pro km",
+    importError:
+        "Die Anzeige konnte nicht importiert werden.",
 
-        checklist: "✅ Checkliste vor dem Kauf",
-        questions: "💬 Fragen an den Verkäufer",
+    fuel:
+        "Kraftstoff",
 
-        specificTitle: "⚠️ Wichtige Prüfpunkte",
-        specificDescription:
-            "Auf Basis der Fahrzeugdaten sollten diese Punkte besonders geprüft werden:",
+    gearbox:
+        "Getriebe",
 
-        years: "Jahre",
-        month: "Monat",
+    tuv:
+        "TÜV / HU",
 
-        error: "Bitte überprüfe die eingegebenen Daten.",
+    accident:
+        "Unfallangaben",
 
-        disclaimer:
-            "Die Informationen dienen nur zur Orientierung und ersetzen keine professionelle Fahrzeugprüfung oder ein verbindliches Finanzierungsangebot."
-    },
+    modifications:
+        "⚠️ Erkannte Änderungen / Tuning",
+
+    vehicleTitle:
+        "🚘 Fahrzeugdaten",
+
+    brand:
+        "Marke",
+
+    model:
+        "Modell",
+
+    year:
+        "Baujahr",
+
+    price:
+        "Kaufpreis (€)",
+
+    km:
+        "Kilometerstand",
+
+    power:
+        "Leistung (PS)",
+
+    financeTitle:
+        "💶 Finanzierung",
+
+    deposit:
+        "Anzahlung (€)",
+
+    months:
+        "Laufzeit (Monate)",
+
+    interest:
+        "Jahreszins (%)",
+
+    analyze:
+        "🔎 Fahrzeug analysieren",
+
+    loading:
+        "⏳ Analyse läuft...",
+
+    monthlyPayment:
+        "Geschätzte monatliche Rate",
+
+    financed:
+        "Finanzierter Betrag",
+
+    interestTotal:
+        "Zinsen gesamt",
+
+    paymentsTotal:
+        "Summe der Raten",
+
+    totalCost:
+        "Gesamtkosten",
+
+    riskTitle:
+        "🤖 AI-Risikocheck",
+
+    riskDescription:
+        "Bereiche, die auf Basis der verfügbaren Angaben vor dem Kauf besonders geprüft werden sollten.",
+
+    analysisTitle:
+        "📊 Fahrzeuganalyse",
+
+    age:
+        "Fahrzeugalter",
+
+    yearlyKm:
+        "Km pro Jahr",
+
+    mileage:
+        "Kilometerbewertung",
+
+    priceKm:
+        "Preis pro km",
+
+    checklist:
+        "✅ Checkliste vor dem Kauf",
+
+    questions:
+        "💬 Fragen an den Verkäufer",
+
+    specificTitle:
+        "⚠️ Wichtige Prüfpunkte",
+
+    specificDescription:
+        "Auf Basis der Fahrzeugdaten sollten diese Punkte besonders geprüft werden:",
+
+    years:
+        "Jahre",
+
+    month:
+        "Monat",
+
+    error:
+        "Bitte überprüfe die eingegebenen Daten.",
+
+    analysisError:
+        "Bei der Analyse ist ein Fehler aufgetreten.",
+
+    disclaimer:
+        "Die Informationen dienen nur zur Orientierung und ersetzen keine professionelle Fahrzeugprüfung oder ein verbindliches Finanzierungsangebot."
+},
 
 
-    en: {
-        subtitle: "Analyze a used car intelligently before you buy",
+en: {
 
-        importTitle: "🔗 Import vehicle listing",
-        importDescription:
-            "Paste the link to a vehicle listing. AutoAnalyzer will try to detect the vehicle details automatically.",
-        importButton: "Import listing",
-        importing: "Importing...",
-        importSuccess: "✓ Vehicle information detected and imported.",
-        importError: "The listing could not be imported.",
+    subtitle:
+        "Analyze a used car intelligently before you buy",
 
-        fuel: "Fuel",
-        gearbox: "Transmission",
-        tuv: "Roadworthiness / TÜV",
-        accident: "Accident information",
-        modifications: "⚠️ Detected modifications / tuning",
+    importTitle:
+        "🔗 Import vehicle listing",
 
-        vehicleTitle: "🚘 Vehicle details",
-        brand: "Make",
-        model: "Model",
-        year: "Year",
-        price: "Purchase price (€)",
-        km: "Mileage",
-        power: "Power (HP)",
+    importDescription:
+        "Paste the link to a vehicle listing. AutoAnalyzer will try to detect the vehicle details automatically.",
 
-        financeTitle: "💶 Financing",
-        deposit: "Down payment (€)",
-        months: "Term (months)",
-        interest: "Annual interest (%)",
+    importButton:
+        "Import listing",
 
-        analyze: "🔎 Analyze vehicle",
-        loading: "⏳ Analyzing...",
+    importing:
+        "Importing...",
 
-        monthlyPayment: "Estimated monthly payment",
-        financed: "Amount financed",
-        interestTotal: "Total interest",
-        paymentsTotal: "Total payments",
-        totalCost: "Total cost",
+    importSuccess:
+        "✓ Vehicle information detected and imported.",
 
-        analysisTitle: "📊 Vehicle analysis",
-        age: "Vehicle age",
-        yearlyKm: "Km per year",
-        mileage: "Mileage assessment",
-        priceKm: "Price per km",
+    importError:
+        "The listing could not be imported.",
 
-        checklist: "✅ Pre-purchase checklist",
-        questions: "💬 Questions for the seller",
+    fuel:
+        "Fuel",
 
-        specificTitle: "⚠️ Important points to check",
-        specificDescription:
-            "Based on the vehicle information, pay particular attention to these points:",
+    gearbox:
+        "Transmission",
 
-        years: "years",
-        month: "month",
+    tuv:
+        "Roadworthiness / TÜV",
 
-        error: "Please check the information entered.",
+    accident:
+        "Accident information",
 
-        disclaimer:
-            "The information provided is for guidance only and does not replace a professional vehicle inspection or a binding financing offer."
-    },
+    modifications:
+        "⚠️ Detected modifications / tuning",
+
+    vehicleTitle:
+        "🚘 Vehicle details",
+
+    brand:
+        "Make",
+
+    model:
+        "Model",
+
+    year:
+        "Year",
+
+    price:
+        "Purchase price (€)",
+
+    km:
+        "Mileage",
+
+    power:
+        "Power (HP)",
+
+    financeTitle:
+        "💶 Financing",
+
+    deposit:
+        "Down payment (€)",
+
+    months:
+        "Term (months)",
+
+    interest:
+        "Annual interest (%)",
+
+    analyze:
+        "🔎 Analyze vehicle",
+
+    loading:
+        "⏳ Analyzing...",
+
+    monthlyPayment:
+        "Estimated monthly payment",
+
+    financed:
+        "Amount financed",
+
+    interestTotal:
+        "Total interest",
+
+    paymentsTotal:
+        "Total payments",
+
+    totalCost:
+        "Total cost",
+
+    riskTitle:
+        "🤖 AI Risk Check",
+
+    riskDescription:
+        "Areas that deserve particular verification before purchase based on the available information.",
+
+    analysisTitle:
+        "📊 Vehicle analysis",
+
+    age:
+        "Vehicle age",
+
+    yearlyKm:
+        "Km per year",
+
+    mileage:
+        "Mileage assessment",
+
+    priceKm:
+        "Price per km",
+
+    checklist:
+        "✅ Pre-purchase checklist",
+
+    questions:
+        "💬 Questions for the seller",
+
+    specificTitle:
+        "⚠️ Important points to check",
+
+    specificDescription:
+        "Based on the vehicle information, pay particular attention to these points:",
+
+    years:
+        "years",
+
+    month:
+        "month",
+
+    error:
+        "Please check the information entered.",
+
+    analysisError:
+        "An error occurred during the analysis.",
+
+    disclaimer:
+        "The information provided is for guidance only and does not replace a professional vehicle inspection or a binding financing offer."
+},
 
 
-    it: {
-        subtitle: "Analizza un'auto usata prima di acquistarla",
+it: {
 
-        importTitle: "🔗 Importa annuncio auto",
-        importDescription:
-            "Incolla il link di un annuncio. AutoAnalyzer proverà a riconoscere automaticamente i dati dell'auto.",
-        importButton: "Importa annuncio",
-        importing: "Importazione...",
-        importSuccess: "✓ Dati dell'auto riconosciuti e importati.",
-        importError: "Non è stato possibile importare l'annuncio.",
+    subtitle:
+        "Analizza un'auto usata prima di acquistarla",
 
-        fuel: "Carburante",
-        gearbox: "Cambio",
-        tuv: "TÜV / Revisione",
-        accident: "Informazioni incidenti",
-        modifications: "⚠️ Modifiche / tuning rilevati",
+    importTitle:
+        "🔗 Importa annuncio auto",
 
-        vehicleTitle: "🚘 Dati dell'auto",
-        brand: "Marca",
-        model: "Modello",
-        year: "Anno",
-        price: "Prezzo (€)",
-        km: "Chilometri",
-        power: "Potenza (CV)",
+    importDescription:
+        "Incolla il link di un annuncio. AutoAnalyzer proverà a riconoscere automaticamente i dati dell'auto.",
 
-        financeTitle: "💶 Finanziamento",
-        deposit: "Anticipo (€)",
-        months: "Durata (mesi)",
-        interest: "Tasso annuo (%)",
+    importButton:
+        "Importa annuncio",
 
-        analyze: "🔎 Analizza auto",
-        loading: "⏳ Analisi in corso...",
+    importing:
+        "Importazione...",
 
-        monthlyPayment: "Rata mensile stimata",
-        financed: "Capitale finanziato",
-        interestTotal: "Interessi totali",
-        paymentsTotal: "Totale rate",
-        totalCost: "Costo totale",
+    importSuccess:
+        "✓ Dati dell'auto riconosciuti e importati.",
 
-        analysisTitle: "📊 Analisi dell'auto",
-        age: "Età dell'auto",
-        yearlyKm: "Km medi / anno",
-        mileage: "Chilometraggio",
-        priceKm: "Prezzo / km",
+    importError:
+        "Non è stato possibile importare l'annuncio.",
 
-        checklist: "✅ Checklist prima dell'acquisto",
-        questions: "💬 Domande da fare al venditore",
+    fuel:
+        "Carburante",
 
-        specificTitle: "⚠️ Punti specifici da controllare",
-        specificDescription:
-            "In base ai dati inseriti, presta particolare attenzione a questi aspetti:",
+    gearbox:
+        "Cambio",
 
-        years: "anni",
-        month: "mese",
+    tuv:
+        "TÜV / Revisione",
 
-        error: "Controlla i dati inseriti.",
+    accident:
+        "Informazioni incidenti",
 
-        disclaimer:
-            "Le informazioni fornite sono indicative e non sostituiscono un controllo tecnico professionale dell'auto o un'offerta finanziaria ufficiale."
-    }
+    modifications:
+        "⚠️ Modifiche / tuning rilevati",
+
+    vehicleTitle:
+        "🚘 Dati dell'auto",
+
+    brand:
+        "Marca",
+
+    model:
+        "Modello",
+
+    year:
+        "Anno",
+
+    price:
+        "Prezzo (€)",
+
+    km:
+        "Chilometri",
+
+    power:
+        "Potenza (CV)",
+
+    financeTitle:
+        "💶 Finanziamento",
+
+    deposit:
+        "Anticipo (€)",
+
+    months:
+        "Durata (mesi)",
+
+    interest:
+        "Tasso annuo (%)",
+
+    analyze:
+        "🔎 Analizza auto",
+
+    loading:
+        "⏳ Analisi in corso...",
+
+    monthlyPayment:
+        "Rata mensile stimata",
+
+    financed:
+        "Capitale finanziato",
+
+    interestTotal:
+        "Interessi totali",
+
+    paymentsTotal:
+        "Totale rate",
+
+    totalCost:
+        "Costo totale",
+
+    riskTitle:
+        "🤖 AI Risk Check",
+
+    riskDescription:
+        "Aree che, in base alle informazioni disponibili, meritano particolare verifica prima dell'acquisto.",
+
+    analysisTitle:
+        "📊 Analisi dell'auto",
+
+    age:
+        "Età dell'auto",
+
+    yearlyKm:
+        "Km medi / anno",
+
+    mileage:
+        "Chilometraggio",
+
+    priceKm:
+        "Prezzo / km",
+
+    checklist:
+        "✅ Checklist prima dell'acquisto",
+
+    questions:
+        "💬 Domande da fare al venditore",
+
+    specificTitle:
+        "⚠️ Punti specifici da controllare",
+
+    specificDescription:
+        "In base ai dati inseriti, presta particolare attenzione a questi aspetti:",
+
+    years:
+        "anni",
+
+    month:
+        "mese",
+
+    error:
+        "Controlla i dati inseriti.",
+
+    analysisError:
+        "Si è verificato un errore durante l'analisi.",
+
+    disclaimer:
+        "Le informazioni fornite sono indicative e non sostituiscono un controllo tecnico professionale dell'auto o un'offerta finanziaria ufficiale."
+}
+
 };
 
 
@@ -768,64 +1309,137 @@ function setLanguage(lang) {
 
     const t = translations[lang];
 
-    document.getElementById("subtitle").innerText = t.subtitle;
+    document.getElementById("subtitle").textContent =
+        t.subtitle;
 
-    document.getElementById("importTitle").innerText = t.importTitle;
-    document.getElementById("importDescription").innerText = t.importDescription;
-    document.getElementById("importButton").innerText = t.importButton;
+    document.getElementById("importTitle").textContent =
+        t.importTitle;
 
-    document.getElementById("fuelInfoLabel").innerText = t.fuel;
-    document.getElementById("gearboxInfoLabel").innerText = t.gearbox;
-    document.getElementById("tuvInfoLabel").innerText = t.tuv;
-    document.getElementById("accidentInfoLabel").innerText = t.accident;
-    document.getElementById("modificationsLabel").innerText = t.modifications;
+    document.getElementById("importDescription").textContent =
+        t.importDescription;
 
-    document.getElementById("vehicleTitle").innerText = t.vehicleTitle;
-    document.getElementById("labelBrand").innerText = t.brand;
-    document.getElementById("labelModel").innerText = t.model;
-    document.getElementById("labelYear").innerText = t.year;
-    document.getElementById("labelPrice").innerText = t.price;
-    document.getElementById("labelKm").innerText = t.km;
-    document.getElementById("labelPower").innerText = t.power;
+    document.getElementById("importButton").textContent =
+        t.importButton;
 
-    document.getElementById("financeTitle").innerText = t.financeTitle;
-    document.getElementById("labelDeposit").innerText = t.deposit;
-    document.getElementById("labelMonths").innerText = t.months;
-    document.getElementById("labelInterest").innerText = t.interest;
+    document.getElementById("fuelInfoLabel").textContent =
+        t.fuel;
 
-    document.getElementById("analyzeButton").innerText = t.analyze;
+    document.getElementById("gearboxInfoLabel").textContent =
+        t.gearbox;
 
-    document.getElementById("monthlyPaymentLabel").innerText = t.monthlyPayment;
-    document.getElementById("financedLabel").innerText = t.financed;
-    document.getElementById("interestTotalLabel").innerText = t.interestTotal;
-    document.getElementById("paymentsTotalLabel").innerText = t.paymentsTotal;
-    document.getElementById("totalCostLabel").innerText = t.totalCost;
+    document.getElementById("tuvInfoLabel").textContent =
+        t.tuv;
 
-    document.getElementById("analysisTitle").innerText = t.analysisTitle;
-    document.getElementById("ageLabel").innerText = t.age;
-    document.getElementById("yearlyKmLabel").innerText = t.yearlyKm;
-    document.getElementById("mileageLabel").innerText = t.mileage;
-    document.getElementById("priceKmLabel").innerText = t.priceKm;
+    document.getElementById("accidentInfoLabel").textContent =
+        t.accident;
 
-    document.getElementById("checklistTitle").innerText = t.checklist;
-    document.getElementById("questionsTitle").innerText = t.questions;
+    document.getElementById("modificationsLabel").textContent =
+        t.modifications;
 
-    document.getElementById("specificTitle").innerText = t.specificTitle;
-    document.getElementById("specificDescription").innerText =
+    document.getElementById("vehicleTitle").textContent =
+        t.vehicleTitle;
+
+    document.getElementById("labelBrand").textContent =
+        t.brand;
+
+    document.getElementById("labelModel").textContent =
+        t.model;
+
+    document.getElementById("labelYear").textContent =
+        t.year;
+
+    document.getElementById("labelPrice").textContent =
+        t.price;
+
+    document.getElementById("labelKm").textContent =
+        t.km;
+
+    document.getElementById("labelPower").textContent =
+        t.power;
+
+    document.getElementById("financeTitle").textContent =
+        t.financeTitle;
+
+    document.getElementById("labelDeposit").textContent =
+        t.deposit;
+
+    document.getElementById("labelMonths").textContent =
+        t.months;
+
+    document.getElementById("labelInterest").textContent =
+        t.interest;
+
+    document.getElementById("analyzeButton").textContent =
+        t.analyze;
+
+    document.getElementById("monthlyPaymentLabel").textContent =
+        t.monthlyPayment;
+
+    document.getElementById("financedLabel").textContent =
+        t.financed;
+
+    document.getElementById("interestTotalLabel").textContent =
+        t.interestTotal;
+
+    document.getElementById("paymentsTotalLabel").textContent =
+        t.paymentsTotal;
+
+    document.getElementById("totalCostLabel").textContent =
+        t.totalCost;
+
+    document.getElementById("riskTitle").textContent =
+        t.riskTitle;
+
+    document.getElementById("riskDescription").textContent =
+        t.riskDescription;
+
+    document.getElementById("analysisTitle").textContent =
+        t.analysisTitle;
+
+    document.getElementById("ageLabel").textContent =
+        t.age;
+
+    document.getElementById("yearlyKmLabel").textContent =
+        t.yearlyKm;
+
+    document.getElementById("mileageLabel").textContent =
+        t.mileage;
+
+    document.getElementById("priceKmLabel").textContent =
+        t.priceKm;
+
+    document.getElementById("checklistTitle").textContent =
+        t.checklist;
+
+    document.getElementById("questionsTitle").textContent =
+        t.questions;
+
+    document.getElementById("specificTitle").textContent =
+        t.specificTitle;
+
+    document.getElementById("specificDescription").textContent =
         t.specificDescription;
 
-    document.getElementById("disclaimer").innerText = t.disclaimer;
+    document.getElementById("disclaimer").textContent =
+        t.disclaimer;
 
     document.querySelectorAll(".lang-btn").forEach(
-        btn => btn.classList.remove("active")
+        button => button.classList.remove("active")
     );
 
-    document.getElementById("btn-" + lang).classList.add("active");
+    document
+        .getElementById("btn-" + lang)
+        .classList
+        .add("active");
 
     const eta = document.getElementById("etaAuto");
 
     if (eta.dataset.value) {
-        eta.innerText = eta.dataset.value + " " + t.years;
+
+        eta.textContent =
+            eta.dataset.value
+            + " "
+            + t.years;
     }
 }
 
@@ -834,10 +1448,10 @@ function euro(numero) {
 
     const locale =
         currentLanguage === "de"
-        ? "de-DE"
-        : currentLanguage === "it"
-        ? "it-IT"
-        : "en-GB";
+            ? "de-DE"
+            : currentLanguage === "it"
+                ? "it-IT"
+                : "en-GB";
 
     return Number(numero).toLocaleString(
         locale,
@@ -849,387 +1463,883 @@ function euro(numero) {
 }
 
 
+function numeroLocale(numero) {
+
+    const locale =
+        currentLanguage === "de"
+            ? "de-DE"
+            : currentLanguage === "it"
+                ? "it-IT"
+                : "en-GB";
+
+    return Number(numero).toLocaleString(locale);
+}
+
+
 function mostraValore(value) {
 
     if (
-        value === null ||
-        value === undefined ||
-        value === ""
+        value === null
+        || value === undefined
+        || value === ""
     ) {
         return "—";
     }
 
-    return value;
+    return String(value);
+}
+
+
+function renderList(elementId, items) {
+
+    const list =
+        document.getElementById(elementId);
+
+    list.innerHTML = "";
+
+    if (!Array.isArray(items)) {
+        return;
+    }
+
+    items.forEach(item => {
+
+        const li =
+            document.createElement("li");
+
+        li.textContent = item;
+
+        list.appendChild(li);
+    });
+}
+
+
+function renderRiskCheck(rischi) {
+
+    const container =
+        document.getElementById("riskContainer");
+
+    const section =
+        document.getElementById("riskResult");
+
+    container.innerHTML = "";
+
+    if (
+        !rischi
+        || typeof rischi !== "object"
+        || Object.keys(rischi).length === 0
+    ) {
+
+        section.style.display = "none";
+
+        return;
+    }
+
+
+    const labels = {
+
+        de: {
+            motore_tuning: "🔧 Motor & Tuning",
+            legalita_tuv: "📋 Legalität & TÜV",
+            manutenzione: "🛠️ Wartung",
+            incidenti_carrozzeria: "🚘 Unfälle & Karosserie",
+            costi: "💶 Kosten",
+
+            low: "NIEDRIG",
+            medium: "MITTEL",
+            high: "HOCH"
+        },
+
+        en: {
+            motore_tuning: "🔧 Engine & Tuning",
+            legalita_tuv: "📋 Legality & Inspection",
+            manutenzione: "🛠️ Maintenance",
+            incidenti_carrozzeria: "🚘 Accidents & Bodywork",
+            costi: "💶 Costs",
+
+            low: "LOW",
+            medium: "MEDIUM",
+            high: "HIGH"
+        },
+
+        it: {
+            motore_tuning: "🔧 Motore & Tuning",
+            legalita_tuv: "📋 Legalità & Revisione",
+            manutenzione: "🛠️ Manutenzione",
+            incidenti_carrozzeria: "🚘 Incidenti & Carrozzeria",
+            costi: "💶 Costi",
+
+            low: "BASSO",
+            medium: "MEDIO",
+            high: "ALTO"
+        }
+    };
+
+
+    const lang =
+        labels[currentLanguage]
+        || labels.de;
+
+
+    const categories = [
+
+        "motore_tuning",
+
+        "legalita_tuv",
+
+        "manutenzione",
+
+        "incidenti_carrozzeria",
+
+        "costi"
+    ];
+
+
+    categories.forEach(category => {
+
+        const risk =
+            rischi[category];
+
+        if (
+            !risk
+            || typeof risk !== "object"
+        ) {
+            return;
+        }
+
+
+        let level =
+            String(
+                risk.livello || "medium"
+            ).toLowerCase();
+
+
+        if (
+            ![
+                "low",
+                "medium",
+                "high"
+            ].includes(level)
+        ) {
+
+            level = "medium";
+        }
+
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "risk-item";
+
+
+        const header =
+            document.createElement("div");
+
+        header.className =
+            "risk-header";
+
+
+        const name =
+            document.createElement("div");
+
+        name.className =
+            "risk-name";
+
+        name.textContent =
+            lang[category]
+            || category;
+
+
+        const badge =
+            document.createElement("span");
+
+        badge.className =
+            "risk-badge risk-" + level;
+
+        badge.textContent =
+            lang[level];
+
+
+        const reason =
+            document.createElement("div");
+
+        reason.className =
+            "risk-reason";
+
+        reason.textContent =
+            risk.motivo || "—";
+
+
+        header.appendChild(name);
+
+        header.appendChild(badge);
+
+        item.appendChild(header);
+
+        item.appendChild(reason);
+
+        container.appendChild(item);
+    });
+
+
+    if (container.children.length > 0) {
+
+        section.style.display =
+            "block";
+
+    } else {
+
+        section.style.display =
+            "none";
+    }
 }
 
 
 async function importListing() {
 
-    const t = translations[currentLanguage];
+    const t =
+        translations[currentLanguage];
 
-    const url = document
-        .getElementById("listingUrl")
-        .value
-        .trim();
+    const url =
+        document
+            .getElementById("listingUrl")
+            .value
+            .trim();
 
-    const button = document.getElementById("importButton");
-    const status = document.getElementById("importStatus");
+    const button =
+        document.getElementById("importButton");
+
+    const status =
+        document.getElementById("importStatus");
+
 
     if (!url) {
 
-        status.className = "import-status import-error";
-        status.innerText = t.importError;
-        status.style.display = "block";
+        status.className =
+            "import-status import-error";
+
+        status.textContent =
+            t.importError;
+
+        status.style.display =
+            "block";
 
         return;
     }
 
-    button.disabled = true;
-    button.innerText = t.importing;
 
-    status.style.display = "none";
+    button.disabled = true;
+
+    button.textContent =
+        t.importing;
+
+    status.style.display =
+        "none";
+
 
     try {
 
-        const response = await fetch(
-            "/extract-listing",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    url: url,
-                    lingua: currentLanguage
-                })
-            }
-        );
+        const response =
+            await fetch(
+                "/extract-listing",
+                {
+                    method: "POST",
 
-        if (!response.ok) {
-            throw new Error("HTTP error");
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        url: url,
+                        lingua: currentLanguage
+                    })
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok
+            || !result.success
+        ) {
+
+            throw new Error(
+                result.errore
+                || "Import failed"
+            );
         }
 
-        const result = await response.json();
 
-        if (!result.success) {
+        const d =
+            result.dati_estratti || {};
 
-            status.className = "import-status import-error";
 
-            status.innerText =
-                result.errore || t.importError;
-
-            status.style.display = "block";
-
-            return;
-        }
-
-        const d = result.dati_estratti;
         importedListingData = d;
 
-        if (d.marca !== null) {
-            document.getElementById("marca").value = d.marca;
+
+        if (d.marca != null) {
+
+            document
+                .getElementById("marca")
+                .value = d.marca;
         }
 
-        if (d.modello !== null) {
-            document.getElementById("modello").value = d.modello;
+
+        if (d.modello != null) {
+
+            document
+                .getElementById("modello")
+                .value = d.modello;
         }
 
-        if (d.anno !== null) {
-            document.getElementById("anno").value = d.anno;
+
+        if (d.anno != null) {
+
+            document
+                .getElementById("anno")
+                .value = d.anno;
         }
 
-        if (d.prezzo !== null) {
-            document.getElementById("prezzo").value = d.prezzo;
+
+        if (d.prezzo != null) {
+
+            document
+                .getElementById("prezzo")
+                .value = d.prezzo;
         }
 
-        if (d.km !== null) {
-            document.getElementById("km").value = d.km;
+
+        if (d.km != null) {
+
+            document
+                .getElementById("km")
+                .value = d.km;
         }
 
-        if (d.potenza_cv !== null) {
-            document.getElementById("potenza").value = d.potenza_cv;
+
+        if (d.potenza_cv != null) {
+
+            document
+                .getElementById("potenza")
+                .value = d.potenza_cv;
         }
 
-        document.getElementById("fuelInfo").innerText =
-            mostraValore(d.carburante);
 
-        document.getElementById("gearboxInfo").innerText =
-            mostraValore(d.cambio);
+        document
+            .getElementById("fuelInfo")
+            .textContent =
+                mostraValore(d.carburante);
 
-        document.getElementById("tuvInfo").innerText =
-            mostraValore(d.tuv);
 
-        document.getElementById("accidentInfo").innerText =
-            mostraValore(d.incidenti);
+        document
+            .getElementById("gearboxInfo")
+            .textContent =
+                mostraValore(d.cambio);
+
+
+        document
+            .getElementById("tuvInfo")
+            .textContent =
+                mostraValore(d.tuv);
+
+
+        document
+            .getElementById("accidentInfo")
+            .textContent =
+                mostraValore(d.incidenti);
+
 
         const modificationsBox =
-            document.getElementById("modificationsBox");
+            document.getElementById(
+                "modificationsBox"
+            );
+
 
         const modificationsList =
-            document.getElementById("modificationsList");
+            document.getElementById(
+                "modificationsList"
+            );
+
 
         modificationsList.innerHTML = "";
 
+
         if (
-            Array.isArray(d.modifiche) &&
-            d.modifiche.length > 0
+            Array.isArray(d.modifiche)
+            && d.modifiche.length > 0
         ) {
 
             d.modifiche.forEach(item => {
 
-                const li = document.createElement("li");
-                li.innerText = item;
+                const li =
+                    document.createElement("li");
 
-                modificationsList.appendChild(li);
+                li.textContent =
+                    item;
+
+                modificationsList
+                    .appendChild(li);
             });
 
-            modificationsBox.style.display = "block";
+
+            modificationsBox.style.display =
+                "block";
 
         } else {
 
-            modificationsBox.style.display = "none";
+            modificationsBox.style.display =
+                "none";
         }
 
-        document.getElementById("listingInfo").style.display = "block";
 
-        status.className = "import-status import-success";
-        status.innerText = t.importSuccess;
-        status.style.display = "block";
+        document
+            .getElementById("listingInfo")
+            .style.display =
+                "block";
 
-        document.getElementById("vehicleTitle").scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+
+        status.className =
+            "import-status import-success";
+
+        status.textContent =
+            t.importSuccess;
+
+        status.style.display =
+            "block";
+
+
+        document
+            .getElementById("vehicleTitle")
+            .scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
 
     } catch(error) {
 
-        status.className = "import-status import-error";
-        status.innerText = t.importError;
-        status.style.display = "block";
+        console.error(
+            "Import error:",
+            error
+        );
+
+        status.className =
+            "import-status import-error";
+
+        status.textContent =
+            t.importError;
+
+        status.style.display =
+            "block";
+
 
     } finally {
 
-        button.disabled = false;
-        button.innerText = t.importButton;
+        button.disabled =
+            false;
+
+        button.textContent =
+            t.importButton;
     }
 }
 
 
 async function analizzaAuto() {
 
-    const t = translations[currentLanguage];
+    const t =
+        translations[currentLanguage];
 
-    const button = document.getElementById("analyzeButton");
-    const errorBox = document.getElementById("errorBox");
+    const button =
+        document.getElementById(
+            "analyzeButton"
+        );
 
-    errorBox.style.display = "none";
+    const errorBox =
+        document.getElementById(
+            "errorBox"
+        );
+
+
+    errorBox.style.display =
+        "none";
+
 
     const dati = {
 
-    lingua: currentLanguage,
+        lingua:
+            currentLanguage,
 
-    marca:
-        document.getElementById("marca").value.trim(),
+        marca:
+            document
+                .getElementById("marca")
+                .value
+                .trim(),
 
-    modello:
-        document.getElementById("modello").value.trim(),
+        modello:
+            document
+                .getElementById("modello")
+                .value
+                .trim(),
 
-    anno:
-        Number(document.getElementById("anno").value),
+        anno:
+            Number(
+                document
+                    .getElementById("anno")
+                    .value
+            ),
 
-    prezzo:
-        Number(document.getElementById("prezzo").value),
+        prezzo:
+            Number(
+                document
+                    .getElementById("prezzo")
+                    .value
+            ),
 
-    km:
-        Number(document.getElementById("km").value),
+        km:
+            Number(
+                document
+                    .getElementById("km")
+                    .value
+            ),
 
-    potenza_cv:
-        Number(document.getElementById("potenza").value),
+        potenza_cv:
+            Number(
+                document
+                    .getElementById("potenza")
+                    .value
+            ),
 
-    anticipo:
-        Number(document.getElementById("anticipo").value),
+        anticipo:
+            Number(
+                document
+                    .getElementById("anticipo")
+                    .value
+            ),
 
-    durata_mesi:
-        Number(document.getElementById("durata").value),
+        durata_mesi:
+            Number(
+                document
+                    .getElementById("durata")
+                    .value
+            ),
 
-    tasso_annuo:
-        Number(document.getElementById("tasso").value),
+        tasso_annuo:
+            Number(
+                document
+                    .getElementById("tasso")
+                    .value
+            ),
 
-    carburante:
-        importedListingData?.carburante ?? null,
+        carburante:
+            importedListingData?.carburante
+            ?? null,
 
-    cambio:
-        importedListingData?.cambio ?? null,
+        cambio:
+            importedListingData?.cambio
+            ?? null,
 
-    tuv:
-        importedListingData?.tuv ?? null,
+        tuv:
+            importedListingData?.tuv
+            ?? null,
 
-    incidenti:
-        importedListingData?.incidenti ?? null,
+        incidenti:
+            importedListingData?.incidenti
+            ?? null,
 
-    modifiche:
-        importedListingData?.modifiche ?? []
-};
+        modifiche:
+            Array.isArray(
+                importedListingData?.modifiche
+            )
+                ? importedListingData.modifiche
+                : []
+    };
+
 
     if (
-        !dati.marca ||
-        !dati.modello ||
-        dati.anno <= 0 ||
-        dati.prezzo <= 0 ||
-        dati.km < 0 ||
-        dati.potenza_cv <= 0 ||
-        dati.anticipo < 0 ||
-        dati.durata_mesi <= 0 ||
-        dati.tasso_annuo < 0
+        !dati.marca
+        || !dati.modello
+        || dati.anno <= 0
+        || dati.prezzo <= 0
+        || dati.km < 0
+        || dati.potenza_cv <= 0
+        || dati.anticipo < 0
+        || dati.durata_mesi <= 0
+        || dati.tasso_annuo < 0
     ) {
 
-        errorBox.innerText = t.error;
-        errorBox.style.display = "block";
+        errorBox.textContent =
+            t.error;
+
+        errorBox.style.display =
+            "block";
 
         return;
     }
 
-    button.disabled = true;
-    button.innerText = t.loading;
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        t.loading;
+
 
     try {
 
-        const response = await fetch(
-            "/analyze",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(dati)
-            }
-        );
+        const response =
+            await fetch(
+                "/analyze",
+                {
+                    method: "POST",
 
-        if (!response.ok) {
-            throw new Error("Server error");
-        }
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-        const result = await response.json();
-
-        document.getElementById("nomeAuto").innerText =
-            result.auto;
-
-        document.getElementById("rata").innerText =
-            euro(result.finanziamento.rata_mensile)
-            + " / "
-            + t.month;
-
-        document.getElementById("capitale").innerText =
-            euro(result.finanziamento.capitale_finanziato);
-
-        document.getElementById("interessi").innerText =
-            euro(result.finanziamento.interessi_totali);
-
-        document.getElementById("totaleRate").innerText =
-            euro(result.finanziamento.totale_rate);
-
-        document.getElementById("costoTotale").innerText =
-            euro(
-                result.finanziamento
-                    .costo_totale_con_anticipo
+                    body:
+                        JSON.stringify(dati)
+                }
             );
 
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "Analyze HTTP error:",
+                response.status,
+                errorText
+            );
+
+            throw new Error(
+                "Server error "
+                + response.status
+            );
+        }
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "Analysis result:",
+            result
+        );
+
+
+        renderRiskCheck(
+            result.analisi?.rischi || {}
+        );
+
+
+        document
+            .getElementById("nomeAuto")
+            .textContent =
+                result.auto;
+
+
+        document
+            .getElementById("rata")
+            .textContent =
+                euro(
+                    result.finanziamento
+                        .rata_mensile
+                )
+                + " / "
+                + t.month;
+
+
+        document
+            .getElementById("capitale")
+            .textContent =
+                euro(
+                    result.finanziamento
+                        .capitale_finanziato
+                );
+
+
+        document
+            .getElementById("interessi")
+            .textContent =
+                euro(
+                    result.finanziamento
+                        .interessi_totali
+                );
+
+
+        document
+            .getElementById("totaleRate")
+            .textContent =
+                euro(
+                    result.finanziamento
+                        .totale_rate
+                );
+
+
+        document
+            .getElementById("costoTotale")
+            .textContent =
+                euro(
+                    result.finanziamento
+                        .costo_totale_con_anticipo
+                );
+
+
         const etaAuto =
-            document.getElementById("etaAuto");
+            document.getElementById(
+                "etaAuto"
+            );
+
 
         etaAuto.dataset.value =
             result.eta_anni;
 
-        etaAuto.innerText =
+
+        etaAuto.textContent =
             result.eta_anni
             + " "
             + t.years;
 
-        document.getElementById("kmAnnui").innerText =
-            Number(result.analisi.km_annui)
-                .toLocaleString()
-            + " km";
 
-        document.getElementById("valutazioneKm").innerText =
-            result.analisi.valutazione_km;
+        document
+            .getElementById("kmAnnui")
+            .textContent =
+                numeroLocale(
+                    result.analisi.km_annui
+                )
+                + " km";
 
-        document.getElementById("prezzoKm").innerText =
-            euro(result.prezzo_per_km);
 
-        const checklist =
-            document.getElementById("checklist");
+        document
+            .getElementById("valutazioneKm")
+            .textContent =
+                result.analisi
+                    .valutazione_km;
 
-        checklist.innerHTML = "";
 
-        result.analisi.checklist.forEach(item => {
+        document
+            .getElementById("prezzoKm")
+            .textContent =
+                euro(
+                    result.prezzo_per_km
+                );
 
-            const li = document.createElement("li");
 
-            li.innerText = item;
+        const summaryBox =
+            document.getElementById(
+                "summaryBox"
+            );
 
-            checklist.appendChild(li);
-        });
 
-        const domande =
-            document.getElementById("domandeVenditore");
+        if (
+            result.analisi?.riassunto_ai
+        ) {
 
-        domande.innerHTML = "";
+            summaryBox.textContent =
+                result.analisi
+                    .riassunto_ai;
 
-        result.analisi.domande_venditore.forEach(item => {
+            summaryBox.style.display =
+                "block";
 
-            const li = document.createElement("li");
+        } else {
 
-            li.innerText = item;
+            summaryBox.style.display =
+                "none";
+        }
 
-            domande.appendChild(li);
-        });
 
-        const specifici =
-            document.getElementById("controlliSpecifici");
+        renderList(
+            "checklist",
+            result.analisi?.checklist || []
+        );
 
-        specifici.innerHTML = "";
 
-        result.analisi.controlli_specifici.forEach(item => {
+        renderList(
+            "domandeVenditore",
+            result.analisi
+                ?.domande_venditore
+            || []
+        );
 
-            const li = document.createElement("li");
 
-            li.innerText = item;
+        renderList(
+            "controlliSpecifici",
+            result.analisi
+                ?.controlli_specifici
+            || []
+        );
 
-            specifici.appendChild(li);
-        });
 
-        document.getElementById("result").style.display = "block";
+        document
+            .getElementById("result")
+            .style.display =
+                "block";
 
-        document.getElementById("analysisResult").style.display = "block";
 
-        document.getElementById("specificResult").style.display = "block";
+        document
+            .getElementById(
+                "analysisResult"
+            )
+            .style.display =
+                "block";
 
-        document.getElementById("result").scrollIntoView({
-            behavior: "smooth"
-        });
+
+        document
+            .getElementById(
+                "specificResult"
+            )
+            .style.display =
+                "block";
+
+
+        document
+            .getElementById("result")
+            .scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
 
     } catch(error) {
 
-        errorBox.innerText =
-            currentLanguage === "de"
-            ? "Bei der Analyse ist ein Fehler aufgetreten."
-            : currentLanguage === "en"
-            ? "An error occurred during the analysis."
-            : "Si è verificato un errore durante l'analisi.";
+        console.error(
+            "Analysis error:",
+            error
+        );
 
-        errorBox.style.display = "block";
+        errorBox.textContent =
+            t.analysisError;
+
+        errorBox.style.display =
+            "block";
+
 
     } finally {
 
-        button.disabled = false;
-        button.innerText = t.analyze;
+        button.disabled =
+            false;
+
+        button.textContent =
+            t.analyze;
     }
 }
 
 
 setLanguage("de");
 
+
 </script>
 
+
 </body>
+
 </html>
