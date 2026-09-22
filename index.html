@@ -491,6 +491,41 @@ li {
     line-height: 1.5;
 }
 
+
+.feedback-section {
+    margin-top: 26px;
+    padding: 22px;
+    text-align: center;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+}
+
+.feedback-section h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+}
+
+.feedback-section p {
+    margin: 0 0 16px;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.feedback-button {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.feedback-button:hover {
+    background: #1d4ed8;
+}
+
 @media(max-width: 650px) {
 
     .grid,
@@ -1527,6 +1562,9 @@ function updateMarketingTexts(lang) {
             step2Text: "Fahrzeugdaten, Risiken, Laufleistung und Finanzierung analysieren.",
             step3Title: "📄 Ergebnis erhalten",
             step3Text: "Auto Score, Prüfhinweise, Verkäuferfragen und PDF-Bericht erhalten.",
+            feedbackTitle: "💬 Feedback geben",
+            feedbackText: "AutoAnalyzer befindet sich in der Testphase. Dein Feedback hilft uns, den Service zu verbessern.",
+            feedbackButton: "Feedback senden",
             disclaimer: "<strong>Hinweis:</strong> AutoAnalyzer AI dient als Entscheidungshilfe beim Gebrauchtwagenkauf. Die Ergebnisse basieren auf den verfügbaren Angaben der Fahrzeuganzeige und einer KI-gestützten Analyse. Sie ersetzen keine technische Fahrzeugprüfung, Diagnose oder professionelle Kaufberatung."
         },
         en: {
@@ -1537,6 +1575,9 @@ function updateMarketingTexts(lang) {
             step2Text: "Analyze vehicle data, risks, mileage and financing.",
             step3Title: "📄 Get your result",
             step3Text: "Receive an Auto Score, inspection tips, seller questions and a PDF report.",
+            feedbackTitle: "💬 Send feedback",
+            feedbackText: "AutoAnalyzer is currently in testing. Your feedback helps us improve the service.",
+            feedbackButton: "Send feedback",
             disclaimer: "<strong>Note:</strong> AutoAnalyzer AI is a decision-support tool for used-car purchases. Results are based on the information available in the vehicle listing and AI-assisted analysis. They do not replace a technical vehicle inspection, diagnosis or professional purchasing advice."
         },
         it: {
@@ -1547,6 +1588,9 @@ function updateMarketingTexts(lang) {
             step2Text: "Analizza dati del veicolo, rischi, chilometraggio e finanziamento.",
             step3Title: "📄 Ottieni il risultato",
             step3Text: "Ricevi Auto Score, controlli consigliati, domande al venditore e report PDF.",
+            feedbackTitle: "💬 Invia feedback",
+            feedbackText: "AutoAnalyzer è attualmente in fase di test. Il tuo feedback ci aiuta a migliorare il servizio.",
+            feedbackButton: "Invia feedback",
             disclaimer: "<strong>Nota:</strong> AutoAnalyzer AI è uno strumento di supporto alla decisione per l'acquisto di auto usate. I risultati si basano sulle informazioni disponibili nell'annuncio e su un'analisi assistita dall'AI. Non sostituiscono un controllo tecnico del veicolo, una diagnosi o una consulenza professionale all'acquisto."
         }
     };
@@ -1560,6 +1604,10 @@ function updateMarketingTexts(lang) {
     document.getElementById("step2Text").textContent = x.step2Text;
     document.getElementById("step3Title").textContent = x.step3Title;
     document.getElementById("step3Text").textContent = x.step3Text;
+    document.getElementById("feedbackTitle").textContent = x.feedbackTitle;
+    document.getElementById("feedbackText").textContent = x.feedbackText;
+    document.getElementById("feedbackButton").textContent = x.feedbackButton;
+    document.getElementById("feedbackButton").href = "mailto:autoanalyzer.ai@outlook.com?subject=" + encodeURIComponent("AutoAnalyzer Feedback");
     document.getElementById("siteDisclaimer").innerHTML = x.disclaimer;
 }
 
@@ -2898,6 +2946,17 @@ setLanguage("de");
 </script>
 
 
+
+
+<section class="feedback-section">
+    <h2 id="feedbackTitle">💬 Feedback geben</h2>
+    <p id="feedbackText">AutoAnalyzer befindet sich in der Testphase. Dein Feedback hilft uns, den Service zu verbessern.</p>
+    <a
+        id="feedbackButton"
+        class="feedback-button"
+        href="mailto:autoanalyzer.ai@outlook.com?subject=AutoAnalyzer%20Feedback"
+    >Feedback senden</a>
+</section>
 
 <div class="site-disclaimer" id="siteDisclaimer">
     <strong>Hinweis:</strong> AutoAnalyzer AI dient als Entscheidungshilfe beim Gebrauchtwagenkauf. Die Ergebnisse basieren auf den verfügbaren Angaben der Fahrzeuganzeige und einer KI-gestützten Analyse. Sie ersetzen keine technische Fahrzeugprüfung, Diagnose oder professionelle Kaufberatung.
