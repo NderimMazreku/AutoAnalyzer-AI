@@ -3,13 +3,14 @@ import json
 import socket
 import ipaddress
 import io
-from datetime import datetime
+from datetime import datetime, timezone
+from threading import Lock
 from urllib.parse import urlparse, urljoin
 
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from openai import OpenAI
 from pydantic import BaseModel, Field
@@ -36,6 +37,57 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key) if api_key else None
 
 app = FastAPI(title="AutoAnalyzer AI")
+
+
+# =========================================================
+# LIMITI DI UTILIZZO API
+# =========================================================
+
+# Limiti separati: un utente può importare fino a 5 annunci e
+# avviare fino a 5 analisi AI al giorno.
+DAILY_IMPORT_LIMIT = 5
+DAILY_ANALYSIS_LIMIT = 5
+
+_rate_limit_lock = Lock()
+_rate_limit_usage = {}
+
+
+def _client_ip(request: Request):
+    forwarded_for = request.headers.get("x-forwarded-for", "")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+
+    if request.client and request.client.host:
+        return request.client.host
+
+    return "unknown"
+
+
+def _check_daily_limit(request: Request, action: str, limit: int):
+    """
+    Semplice rate limit in memoria per l'MVP.
+    Si azzera ogni giorno UTC e anche quando il servizio Render si riavvia.
+    """
+    ip = _client_ip(request)
+    today = datetime.now(timezone.utc).date().isoformat()
+    key = (today, ip, action)
+
+    with _rate_limit_lock:
+        used = _rate_limit_usage.get(key, 0)
+
+        if used >= limit:
+            raise HTTPException(
+                status_code=429,
+                detail={
+                    "code": "daily_limit_reached",
+                    "action": action,
+                    "limit": limit,
+                    "message": "Daily usage limit reached. Please try again tomorrow."
+                }
+            )
+
+        _rate_limit_usage[key] = used + 1
+
 
 
 # =========================================================
@@ -580,7 +632,7 @@ Maximum 6 items per list.
 # =========================================================
 
 @app.post("/analyze")
-def analyze_auto(auto: AutoData):
+def analyze_auto(auto: AutoData, request: Request):
 
     if auto.lingua not in ["de", "en", "it"]:
         auto.lingua = "de"
@@ -683,6 +735,12 @@ def analyze_auto(auto: AutoData):
     # --------------------------------
     # ANALISI AI
     # --------------------------------
+
+    _check_daily_limit(
+        request,
+        "analyze",
+        DAILY_ANALYSIS_LIMIT
+    )
 
     analisi_ai = genera_analisi_ai(auto)
 
@@ -1481,7 +1539,7 @@ def url_pubblico_valido(url):
 # =========================================================
 
 @app.post("/extract-listing")
-def extract_listing(data: ListingURL):
+def extract_listing(data: ListingURL, request: Request):
 
     url = data.url.strip()
 
@@ -1632,6 +1690,12 @@ def extract_listing(data: ListingURL):
                 "errore":
                     "Non è stato possibile leggere il contenuto dell'annuncio."
             }
+
+        _check_daily_limit(
+            request,
+            "extract",
+            DAILY_IMPORT_LIMIT
+        )
 
         estrazione_ai = estrai_dati_annuncio_ai(
             titolo,
