@@ -235,6 +235,22 @@ input:focus {
     background: #1d4ed8;
 }
 
+
+.pdf-button {
+    display: none;
+    width: 100%;
+    margin-top: 18px;
+    padding: 15px;
+    border-radius: 9px;
+    background: #111827;
+    color: white;
+    font-size: 16px;
+}
+
+.pdf-button:hover {
+    background: #374151;
+}
+
 button:disabled {
     opacity: .6;
     cursor: wait;
@@ -294,6 +310,111 @@ button:disabled {
 
 .warning-section h2 {
     color: #92400e;
+}
+
+
+.auto-score-card {
+    display: none;
+    margin-top: 25px;
+    padding: 25px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.auto-score-title {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.auto-score-main {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.auto-score-number {
+    font-size: 54px;
+    line-height: 1;
+    font-weight: 800;
+}
+
+.auto-score-total {
+    font-size: 22px;
+    color: #6b7280;
+    font-weight: bold;
+}
+
+.auto-score-label {
+    margin-top: 10px;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.auto-score-bar {
+    width: 100%;
+    height: 12px;
+    margin: 20px 0;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.auto-score-progress {
+    height: 100%;
+    border-radius: 999px;
+    transition: width .5s ease;
+}
+
+.auto-score-explanation {
+    margin-top: 15px;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.auto-score-disclaimer {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.score-excellent .auto-score-number,
+.score-excellent .auto-score-label,
+.score-good .auto-score-number,
+.score-good .auto-score-label {
+    color: #166534;
+}
+
+.score-excellent .auto-score-progress,
+.score-good .auto-score-progress {
+    background: #22c55e;
+}
+
+.score-medium .auto-score-number,
+.score-medium .auto-score-label,
+.score-warning .auto-score-number,
+.score-warning .auto-score-label {
+    color: #92400e;
+}
+
+.score-medium .auto-score-progress,
+.score-warning .auto-score-progress {
+    background: #f59e0b;
+}
+
+.score-danger .auto-score-number,
+.score-danger .auto-score-label {
+    color: #991b1b;
+}
+
+.score-danger .auto-score-progress {
+    background: #ef4444;
 }
 
 .risk-item {
@@ -752,6 +873,25 @@ li {
 </div>
 
 
+<!-- AUTO SCORE -->
+
+<div
+    id="autoScoreContainer"
+    class="auto-score-card"
+></div>
+
+
+<!-- PDF REPORT -->
+
+<button
+    id="pdfButton"
+    class="pdf-button"
+    onclick="downloadPdfReport()"
+>
+    📄 PDF Report
+</button>
+
+
 <!-- AI RISIKOCHECK -->
 
 <div
@@ -873,6 +1013,8 @@ let importedListingData = null;
 let hasAnalyzed = false;
 
 let languageChangeInProgress = false;
+
+let lastAnalysisResult = null;
 const translations = {
 
 de: {
@@ -1358,6 +1500,17 @@ async function setLanguage(lang) {
 
     document.getElementById("analyzeButton").textContent = t.analyze;
 
+    const pdfButton = document.getElementById("pdfButton");
+
+    if (pdfButton && pdfButton.style.display !== "none") {
+        pdfButton.textContent =
+            lang === "de"
+                ? "📄 PDF-Bericht herunterladen"
+                : lang === "en"
+                    ? "📄 Download PDF Report"
+                    : "📄 Scarica report PDF";
+    }
+
     document.getElementById("monthlyPaymentLabel").textContent = t.monthlyPayment;
     document.getElementById("financedLabel").textContent = t.financed;
     document.getElementById("interestTotalLabel").textContent = t.interestTotal;
@@ -1519,6 +1672,175 @@ function renderList(elementId, items) {
 
         list.appendChild(li);
     });
+}
+
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function renderAutoScore(autoScore) {
+
+    const container =
+        document.getElementById("autoScoreContainer");
+
+    if (!container) {
+        return;
+    }
+
+    if (!autoScore) {
+        container.innerHTML = "";
+        container.style.display = "none";
+        return;
+    }
+
+    let score = parseInt(autoScore.punteggio);
+
+    if (isNaN(score)) {
+        container.innerHTML = "";
+        container.style.display = "none";
+        return;
+    }
+
+    score = Math.max(0, Math.min(100, score));
+
+    const explanation =
+        autoScore.spiegazione || "";
+
+    let label = "";
+    let scoreClass = "";
+
+    if (score >= 90) {
+
+        scoreClass = "score-excellent";
+
+        if (currentLanguage === "de") {
+            label = "Sehr beruhigend";
+        } else if (currentLanguage === "en") {
+            label = "Very reassuring";
+        } else {
+            label = "Molto rassicurante";
+        }
+
+    } else if (score >= 75) {
+
+        scoreClass = "score-good";
+
+        if (currentLanguage === "de") {
+            label = "Insgesamt beruhigend";
+        } else if (currentLanguage === "en") {
+            label = "Generally reassuring";
+        } else {
+            label = "Generalmente rassicurante";
+        }
+
+    } else if (score >= 60) {
+
+        scoreClass = "score-medium";
+
+        if (currentLanguage === "de") {
+            label = "Einige Punkte prüfen";
+        } else if (currentLanguage === "en") {
+            label = "Some points to check";
+        } else {
+            label = "Alcuni punti da verificare";
+        }
+
+    } else if (score >= 40) {
+
+        scoreClass = "score-warning";
+
+        if (currentLanguage === "de") {
+            label = "Sorgfältig prüfen";
+        } else if (currentLanguage === "en") {
+            label = "Check carefully";
+        } else {
+            label = "Verificare attentamente";
+        }
+
+    } else {
+
+        scoreClass = "score-danger";
+
+        if (currentLanguage === "de") {
+            label = "Besonders sorgfältig prüfen";
+        } else if (currentLanguage === "en") {
+            label = "Particularly careful checks needed";
+        } else {
+            label = "Richiede verifiche particolarmente attente";
+        }
+    }
+
+    let disclaimer = "";
+
+    if (currentLanguage === "de") {
+
+        disclaimer =
+            "Der Auto Score basiert auf den verfügbaren Angaben und ersetzt keine technische Fahrzeugprüfung.";
+
+    } else if (currentLanguage === "en") {
+
+        disclaimer =
+            "The Auto Score is based on the available information and does not replace a technical vehicle inspection.";
+
+    } else {
+
+        disclaimer =
+            "L'Auto Score si basa sulle informazioni disponibili e non sostituisce un controllo tecnico del veicolo.";
+    }
+
+    container.className =
+        "auto-score-card " + scoreClass;
+
+    container.innerHTML = `
+        <div class="auto-score-title">
+            AUTO SCORE
+        </div>
+
+        <div class="auto-score-main">
+            <span class="auto-score-number">
+                ${score}
+            </span>
+
+            <span class="auto-score-total">
+                / 100
+            </span>
+        </div>
+
+        <div class="auto-score-label">
+            ${label}
+        </div>
+
+        <div class="auto-score-bar">
+            <div
+                class="auto-score-progress"
+                style="width: ${score}%;">
+            </div>
+        </div>
+
+        ${
+            explanation
+                ? `
+                    <div class="auto-score-explanation">
+                        ${escapeHtml(explanation)}
+                    </div>
+                `
+                : ""
+        }
+
+        <div class="auto-score-disclaimer">
+            ${disclaimer}
+        </div>
+    `;
+
+    container.style.display = "block";
 }
 
 
@@ -1821,6 +2143,218 @@ async function importListing(silent = false) {
 }
 
 
+async function downloadPdfReport() {
+
+    if (!lastAnalysisResult) {
+        return;
+    }
+
+    const button =
+        document.getElementById("pdfButton");
+
+    const originalText =
+        button.textContent;
+
+    const loadingText = {
+        de: "⏳ PDF wird erstellt...",
+        en: "⏳ Creating PDF...",
+        it: "⏳ Creazione PDF..."
+    };
+
+    try {
+
+        button.disabled = true;
+        button.textContent =
+            loadingText[currentLanguage]
+            || loadingText.de;
+
+        const autoData = {
+            lingua: currentLanguage,
+
+            marca:
+                document.getElementById("marca")
+                    .value.trim(),
+
+            modello:
+                document.getElementById("modello")
+                    .value.trim(),
+
+            anno:
+                Number(
+                    document.getElementById("anno").value
+                ),
+
+            prezzo:
+                Number(
+                    document.getElementById("prezzo").value
+                ),
+
+            km:
+                Number(
+                    document.getElementById("km").value
+                ),
+
+            potenza_cv:
+                Number(
+                    document.getElementById("potenza").value
+                ),
+
+            anticipo:
+                Number(
+                    document.getElementById("anticipo").value
+                ),
+
+            durata_mesi:
+                Number(
+                    document.getElementById("durata").value
+                ),
+
+            tasso_annuo:
+                Number(
+                    document.getElementById("tasso").value
+                ),
+
+            carburante:
+                importedListingData?.carburante ?? null,
+
+            cambio:
+                importedListingData?.cambio ?? null,
+
+            tuv:
+                importedListingData?.tuv ?? null,
+
+            incidenti:
+                importedListingData?.incidenti ?? null,
+
+            modifiche:
+                Array.isArray(importedListingData?.modifiche)
+                    ? importedListingData.modifiche
+                    : []
+        };
+
+        const response =
+            await fetch(
+                "/generate-report",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            auto: autoData,
+                            result: lastAnalysisResult
+                        })
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "PDF server error "
+                + response.status
+            );
+        }
+
+        const contentType =
+            response.headers.get(
+                "content-type"
+            ) || "";
+
+        if (!contentType.includes("application/pdf")) {
+
+            const errorText =
+                await response.text();
+
+            console.error(
+                "PDF response error:",
+                errorText
+            );
+
+            throw new Error(
+                "Invalid PDF response."
+            );
+        }
+
+        const blob =
+            await response.blob();
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+
+        let filename =
+            "AutoAnalyzer_Report.pdf";
+
+        const disposition =
+            response.headers.get(
+                "content-disposition"
+            );
+
+        if (disposition) {
+
+            const match =
+                disposition.match(
+                    /filename="?([^"]+)"?/i
+                );
+
+            if (match && match[1]) {
+                filename = match[1];
+            }
+        }
+
+        link.download = filename;
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+        setTimeout(
+            () => URL.revokeObjectURL(url),
+            1000
+        );
+
+    } catch (error) {
+
+        console.error(
+            "PDF download error:",
+            error
+        );
+
+        const messages = {
+            de: "Der PDF-Bericht konnte nicht erstellt werden.",
+            en: "The PDF report could not be created.",
+            it: "Non è stato possibile creare il report PDF."
+        };
+
+        const errorBox =
+            document.getElementById(
+                "errorBox"
+            );
+
+        errorBox.textContent =
+            messages[currentLanguage]
+            || messages.de;
+
+        errorBox.style.display =
+            "block";
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = originalText;
+    }
+}
+
+
 async function analizzaAuto(silent = false) {
 
     const t =
@@ -2002,9 +2536,19 @@ async function analizzaAuto(silent = false) {
             await response.json();
 
 
+        lastAnalysisResult = result;
+
+
         console.log(
             "Analysis result:",
             result
+        );
+
+
+        renderAutoScore(
+            result.analisi?.auto_score
+            || result.ai?.auto_score
+            || null
         );
 
 
@@ -2175,6 +2719,19 @@ async function analizzaAuto(silent = false) {
 
 
         hasAnalyzed = true;
+
+        const pdfButton =
+            document.getElementById("pdfButton");
+
+        pdfButton.textContent =
+            currentLanguage === "de"
+                ? "📄 PDF-Bericht herunterladen"
+                : currentLanguage === "en"
+                    ? "📄 Download PDF Report"
+                    : "📄 Scarica report PDF";
+
+        pdfButton.style.display =
+            "block";
 
         if (!silent) {
             document
