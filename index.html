@@ -994,6 +994,51 @@ li {
 ></div>
 
 
+<!-- AI PRICE CHECK -->
+
+<div
+    id="priceCheckContainer"
+    class="section-result"
+    style="display:none;"
+>
+
+    <h2 id="priceCheckTitle">
+        💰 AI Price Check
+    </h2>
+
+    <p id="priceCheckDescription">
+        Bewertung des Fahrzeugpreises anhand der verfügbaren Fahrzeugdaten.
+    </p>
+
+    <div class="result-grid">
+
+        <div class="result-box">
+            <strong id="priceRatingLabel">
+                Preisbewertung
+            </strong>
+
+            <span id="priceRating">—</span>
+        </div>
+
+        <div class="result-box">
+            <strong id="priceRangeLabel">
+                Geschätzter Preisbereich
+            </strong>
+
+            <span id="priceRange">—</span>
+        </div>
+
+    </div>
+
+    <div
+        id="priceExplanation"
+        class="summary-box"
+        style="display:none;"
+    ></div>
+
+</div>
+
+
 <!-- PDF REPORT -->
 
 <button
@@ -1607,6 +1652,7 @@ function updateMarketingTexts(lang) {
             feedbackButton: "Feedback senden",
             disclaimer: "<strong>Hinweis:</strong> AutoAnalyzer AI dient als Entscheidungshilfe beim Gebrauchtwagenkauf. Die Ergebnisse basieren auf den verfügbaren Angaben der Fahrzeuganzeige und einer KI-gestützten Analyse. Sie ersetzen keine technische Fahrzeugprüfung, Diagnose oder professionelle Kaufberatung."
         },
+
         en: {
             howTitle: "How AutoAnalyzer works",
             step1Title: "🔗 Paste a listing",
@@ -1620,6 +1666,7 @@ function updateMarketingTexts(lang) {
             feedbackButton: "Send feedback",
             disclaimer: "<strong>Note:</strong> AutoAnalyzer AI is a decision-support tool for used-car purchases. Results are based on the information available in the vehicle listing and AI-assisted analysis. They do not replace a technical vehicle inspection, diagnosis or professional purchasing advice."
         },
+
         it: {
             howTitle: "Come funziona AutoAnalyzer",
             step1Title: "🔗 Incolla un annuncio",
@@ -1633,6 +1680,7 @@ function updateMarketingTexts(lang) {
             feedbackButton: "Invia feedback",
             disclaimer: "<strong>Nota:</strong> AutoAnalyzer AI è uno strumento di supporto alla decisione per l'acquisto di auto usate. I risultati si basano sulle informazioni disponibili nell'annuncio e su un'analisi assistita dall'AI. Non sostituiscono un controllo tecnico del veicolo, una diagnosi o una consulenza professionale all'acquisto."
         },
+
         es: {
             howTitle: "Cómo funciona AutoAnalyzer",
             step1Title: "🔗 Pega un anuncio",
@@ -1650,20 +1698,41 @@ function updateMarketingTexts(lang) {
 
     const x = marketing[lang] || marketing.de;
 
-    document.getElementById("howTitle").textContent = x.howTitle;
-    document.getElementById("step1Title").textContent = x.step1Title;
-    document.getElementById("step1Text").textContent = x.step1Text;
-    document.getElementById("step2Title").textContent = x.step2Title;
-    document.getElementById("step2Text").textContent = x.step2Text;
-    document.getElementById("step3Title").textContent = x.step3Title;
-    document.getElementById("step3Text").textContent = x.step3Text;
-    document.getElementById("feedbackTitle").textContent = x.feedbackTitle;
-    document.getElementById("feedbackText").textContent = x.feedbackText;
-    document.getElementById("feedbackButton").textContent = x.feedbackButton;
-    document.getElementById("feedbackButton").href = "mailto:autoanalyzer.ai@outlook.com?subject=" + encodeURIComponent("AutoAnalyzer Feedback");
-    document.getElementById("siteDisclaimer").innerHTML = x.disclaimer;
-}
+    const setText = (id, value) => {
+        const element = document.getElementById(id);
 
+        if (element) {
+            element.textContent = value;
+        }
+    };
+
+    setText("howTitle", x.howTitle);
+    setText("step1Title", x.step1Title);
+    setText("step1Text", x.step1Text);
+    setText("step2Title", x.step2Title);
+    setText("step2Text", x.step2Text);
+    setText("step3Title", x.step3Title);
+    setText("step3Text", x.step3Text);
+    setText("feedbackTitle", x.feedbackTitle);
+    setText("feedbackText", x.feedbackText);
+    setText("feedbackButton", x.feedbackButton);
+
+    const feedbackButton =
+        document.getElementById("feedbackButton");
+
+    if (feedbackButton) {
+        feedbackButton.href =
+            "mailto:autoanalyzer.ai@outlook.com?subject=" +
+            encodeURIComponent("AutoAnalyzer Feedback");
+    }
+
+    const siteDisclaimer =
+        document.getElementById("siteDisclaimer");
+
+    if (siteDisclaimer) {
+        siteDisclaimer.innerHTML = x.disclaimer;
+    }
+}
 
 async function setLanguage(lang) {
 
@@ -1982,6 +2051,11 @@ async function setLanguage(lang) {
                 null
             );
 
+            renderPriceCheck(
+    	        lastAnalysisResult.ai?.price_check
+                || null
+	    );
+
             renderRiskCheck(
                 lastAnalysisResult.analisi?.rischi
                 || {}
@@ -2141,6 +2215,179 @@ function renderAutoScore(autoScore) {
         <div class="auto-score-bar"><div class="auto-score-progress" style="width: ${score}%;"></div></div>
         ${explanation ? `<div class="auto-score-explanation">${escapeHtml(explanation)}</div>` : ""}
         <div class="auto-score-disclaimer">${texts.disclaimer}</div>`;
+    container.style.display = "block";
+}
+
+function renderPriceCheck(priceCheck) {
+
+    const container =
+        document.getElementById("priceCheckContainer");
+
+    if (!container) {
+        return;
+    }
+
+    if (
+        !priceCheck ||
+        typeof priceCheck !== "object"
+    ) {
+        container.style.display = "none";
+        return;
+    }
+
+
+    const texts = {
+
+        de: {
+            title: "💰 AI Price Check",
+            description:
+                "KI-basierte Einschätzung des Fahrzeugpreises anhand der verfügbaren Fahrzeugdaten.",
+            rating: "Preisbewertung",
+            range: "Geschätzter Preisbereich",
+            good_deal: "Attraktiver Preis",
+            fair: "Preis im normalen Bereich",
+            high: "Eher hoher Preis",
+            uncertain: "Nicht ausreichend einschätzbar",
+            disclaimer:
+                "Diese Einschätzung ist keine Echtzeit-Marktpreisbewertung und dient nur zur Orientierung."
+        },
+
+        en: {
+            title: "💰 AI Price Check",
+            description:
+                "AI-based assessment of the asking price using the available vehicle information.",
+            rating: "Price assessment",
+            range: "Estimated price range",
+            good_deal: "Attractive price",
+            fair: "Price within a reasonable range",
+            high: "Rather high price",
+            uncertain: "Not enough information",
+            disclaimer:
+                "This assessment is not a real-time market valuation and is provided for guidance only."
+        },
+
+        it: {
+            title: "💰 AI Price Check",
+            description:
+                "Valutazione AI del prezzo richiesto in base alle informazioni disponibili sul veicolo.",
+            rating: "Valutazione del prezzo",
+            range: "Fascia di prezzo stimata",
+            good_deal: "Prezzo interessante",
+            fair: "Prezzo nella norma",
+            high: "Prezzo piuttosto alto",
+            uncertain: "Informazioni insufficienti",
+            disclaimer:
+                "Questa valutazione non rappresenta un prezzo di mercato in tempo reale ed è solo indicativa."
+        },
+
+        es: {
+            title: "💰 AI Price Check",
+            description:
+                "Evaluación con IA del precio solicitado según la información disponible del vehículo.",
+            rating: "Evaluación del precio",
+            range: "Rango de precio estimado",
+            good_deal: "Precio atractivo",
+            fair: "Precio dentro de un rango razonable",
+            high: "Precio bastante alto",
+            uncertain: "Información insuficiente",
+            disclaimer:
+                "Esta evaluación no representa una valoración de mercado en tiempo real y es solo orientativa."
+        }
+    };
+
+
+    const t =
+        texts[currentLanguage] || texts.de;
+
+
+    const rating =
+        String(
+            priceCheck.valutazione || "uncertain"
+        ).toLowerCase();
+
+
+    document.getElementById("priceCheckTitle").textContent =
+        t.title;
+
+    document.getElementById("priceCheckDescription").textContent =
+        t.description;
+
+    document.getElementById("priceRatingLabel").textContent =
+        t.rating;
+
+    document.getElementById("priceRangeLabel").textContent =
+        t.range;
+
+
+    document.getElementById("priceRating").textContent =
+        t[rating] || t.uncertain;
+
+
+    const min =
+        Number(priceCheck.prezzo_min);
+
+    const max =
+        Number(priceCheck.prezzo_max);
+
+
+    if (
+        priceCheck.prezzo_min !== null &&
+        priceCheck.prezzo_max !== null &&
+        Number.isFinite(min) &&
+        Number.isFinite(max)
+    ) {
+
+        document.getElementById("priceRange").textContent = 
+        min.toLocaleString("de-DE", {
+        	style: "currency",
+        	currency: "EUR",
+        	maximumFractionDigits: 0
+    	   })
+    	   + " – " +
+    	max.toLocaleString("de-DE", {
+        	style: "currency",
+        	currency: "EUR",
+        	maximumFractionDigits: 0
+    	  });
+
+    } else {
+
+        document.getElementById("priceRange").textContent =
+            "—";
+    }
+
+
+    const explanation =
+        document.getElementById("priceExplanation");
+
+    const explanationText =
+        priceCheck.spiegazione || "";
+
+
+    if (explanationText) {
+
+        explanation.innerHTML =
+            escapeHtml(explanationText) +
+            `<div style="
+                margin-top:12px;
+                font-size:12px;
+                color:#6b7280;
+            ">${escapeHtml(t.disclaimer)}</div>`;
+
+        explanation.style.display = "block";
+
+    } else {
+
+        explanation.innerHTML =
+            `<div style="
+                font-size:12px;
+                color:#6b7280;
+            ">${escapeHtml(t.disclaimer)}</div>`;
+
+        explanation.style.display = "block";
+    }
+
+
     container.style.display = "block";
 }
 
@@ -3014,16 +3261,22 @@ async function analizzaAuto(silent = false) {
         );
 
 
-        renderAutoScore(
-            result.analisi?.auto_score
-            || result.ai?.auto_score
-            || null
-        );
+	renderAutoScore(
+    		result.analisi?.auto_score
+    		|| result.ai?.auto_score
+    		|| null
+	);
 
 
-        renderRiskCheck(
-            result.analisi?.rischi || {}
-        );
+	renderPriceCheck(
+    		result.ai?.price_check
+    		|| null
+	);
+
+
+	renderRiskCheck(
+    		result.analisi?.rischi || {}
+	);
 
 
         document

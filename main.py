@@ -387,6 +387,78 @@ Use TÜV/HU, accident information, fuel type and transmission
 information when generating checks and seller questions.
 
 
+PRICE CHECK:
+
+Estimate whether the asking price appears reasonable based ONLY on the
+vehicle information currently available.
+
+Consider:
+
+- make and model
+- year
+- mileage
+- engine / power
+- fuel type
+- transmission
+- accident information
+- TÜV/HU information
+- modifications or tuning
+- vehicle age
+- approximate annual mileage
+
+Return a cautious indicative price assessment.
+
+IMPORTANT PRICE CHECK RULES:
+
+This is NOT a verified real-time market valuation.
+
+You do NOT have access to live marketplace prices unless they were
+explicitly provided in the input.
+
+Do not claim that the estimated range represents the current market
+price.
+
+The estimate must be treated only as an AI-based indication based on
+the available vehicle information.
+
+Use exactly one of these values for "valutazione":
+
+"good_deal"
+"fair"
+"high"
+"uncertain"
+
+Meaning:
+
+"good_deal":
+The asking price appears relatively attractive based on the available
+information.
+
+"fair":
+The asking price appears broadly reasonable based on the available
+information.
+
+"high":
+The asking price appears relatively high based on the available
+information.
+
+"uncertain":
+There is not enough reliable information to make a meaningful price
+assessment.
+
+For "prezzo_min" and "prezzo_max":
+
+- Return estimated integer amounts in EUR.
+- prezzo_min must not be greater than prezzo_max.
+- Use null for both values if a meaningful range cannot be estimated.
+- Do not invent false precision.
+
+The "spiegazione" must clearly state the main factors affecting the
+assessment and MUST be written in {language}.
+
+
+
+
 AUTO SCORE:
 
 Calculate an Auto Score from 0 to 100.
@@ -505,6 +577,13 @@ Use exactly this JSON structure:
 {{
     "riassunto": "short analysis",
 
+    "price_check": {{
+        "valutazione": "fair",
+        "prezzo_min": 0,
+        "prezzo_max": 0,
+        "spiegazione": "short explanation of the indicative price assessment"
+    }},
+
     "auto_score": {{
         "punteggio": 0,
         "spiegazione": "short explanation of the score"
@@ -585,6 +664,107 @@ Maximum 6 items per list.
             raise ValueError(
                 "AI response is not a JSON object."
             )
+
+        # -----------------------------
+        # PRICE CHECK
+        # -----------------------------
+
+        price_check = dati_ai.get("price_check")
+
+        if not isinstance(price_check, dict):
+
+            dati_ai["price_check"] = {
+                "valutazione": "uncertain",
+                "prezzo_min": None,
+                "prezzo_max": None,
+                "spiegazione": ""
+            }
+
+        else:
+
+            valutazione = str(
+                price_check.get(
+                    "valutazione",
+                    "uncertain"
+                )
+            ).lower()
+
+            if valutazione not in [
+                "good_deal",
+                "fair",
+                "high",
+                "uncertain"
+            ]:
+                valutazione = "uncertain"
+
+            price_check["valutazione"] = valutazione
+
+
+            try:
+                prezzo_min = price_check.get("prezzo_min")
+
+                if prezzo_min is not None:
+                    prezzo_min = int(
+                        round(float(prezzo_min))
+                    )
+
+                    if prezzo_min < 0:
+                        prezzo_min = None
+
+            except (TypeError, ValueError):
+                prezzo_min = None
+
+
+            try:
+                prezzo_max = price_check.get("prezzo_max")
+
+                if prezzo_max is not None:
+                    prezzo_max = int(
+                        round(float(prezzo_max))
+                    )
+
+                    if prezzo_max < 0:
+                        prezzo_max = None
+
+            except (TypeError, ValueError):
+                prezzo_max = None
+
+
+            # Se la fascia è invertita, la correggiamo.
+            if (
+                prezzo_min is not None
+                and prezzo_max is not None
+                and prezzo_min > prezzo_max
+            ):
+                prezzo_min, prezzo_max = (
+                    prezzo_max,
+                    prezzo_min
+                )
+
+
+            # Se manca uno dei due valori,
+            # consideriamo la fascia non disponibile.
+            if (
+                prezzo_min is None
+                or prezzo_max is None
+            ):
+                prezzo_min = None
+                prezzo_max = None
+
+
+            price_check["prezzo_min"] = prezzo_min
+            price_check["prezzo_max"] = prezzo_max
+
+
+            if not isinstance(
+                price_check.get("spiegazione"),
+                str
+            ):
+                price_check["spiegazione"] = ""
+
+
+
+
 
 
         # -----------------------------
