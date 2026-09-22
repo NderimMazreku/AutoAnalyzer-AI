@@ -603,7 +603,6 @@ def analyze_auto(auto: AutoData):
 def estrai_dati_annuncio_ai(titolo, testo, lingua="de"):
 
     if client is None:
-
         return {
             "success": False,
             "errore": "OpenAI API not configured."
@@ -625,7 +624,7 @@ LISTING TEXT:
 Extract only information that is actually present or clearly stated
 in the listing.
 
-Important rules:
+Important extraction rules:
 
 - Price must be the actual vehicle price in EUR.
 - Do not confuse monthly financing payments with the vehicle price.
@@ -636,7 +635,7 @@ Important rules:
 - Year should represent first registration or manufacturing year
   when clearly available.
 - If information is unavailable, return null.
-- Keep the model concise.
+- Keep the vehicle model concise.
 - Detect tuning such as Stage 1, Stage 2 or Stage 3.
 - Detect relevant technical or cosmetic modifications.
 - Detect exhaust, downpipe, suspension, wheels and emissions changes.
@@ -644,14 +643,70 @@ Important rules:
 - Extract TÜV/HU information if available.
 - Extract transmission and fuel type if available.
 
+IMPORTANT LANGUAGE INSTRUCTION:
+
 The selected language is {language}.
 
-Write the entries in "modifiche" and "informazioni_extra"
-in {language}.
+ALL user-facing textual values MUST be written in {language}.
+
+This applies to:
+
+- "carburante"
+- "cambio"
+- "tuv"
+- "incidenti"
+- every item in "modifiche"
+- every item in "informazioni_extra"
+
+Translate textual values when necessary.
+
+If the selected language is German, use German terms.
+
+Examples:
+- manual transmission -> "Manuell"
+- automatic transmission -> "Automatik"
+- petrol -> "Benzin"
+- diesel -> "Diesel"
+- August 2027 -> "August 2027"
+- accident-free -> "Unfallfrei"
+
+If the selected language is English, use English terms.
+
+Examples:
+- manual transmission -> "Manual"
+- automatic transmission -> "Automatic"
+- petrol -> "Petrol"
+- diesel -> "Diesel"
+- August 2027 -> "August 2027"
+- accident-free -> "Accident-free"
+
+If the selected language is Italian, use Italian terms.
+
+Examples:
+- manual transmission -> "Manuale"
+- automatic transmission -> "Automatico"
+- petrol -> "Benzina"
+- diesel -> "Diesel"
+- August 2027 -> "Agosto 2027"
+- accident-free -> "Senza incidenti"
+
+Do NOT translate:
+
+- vehicle manufacturer names
+- vehicle model names
+- brand names
+- product names
+- tuning company names
+
+For example:
+"Sachs Sportkupplung" may be described in the selected language,
+but "Sachs" must remain unchanged.
 
 Return ONLY valid JSON.
 
-Do not use Markdown or code fences.
+Do not use Markdown.
+Do not use code fences.
+Do not add text before or after the JSON.
 
 Use exactly this structure:
 

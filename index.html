@@ -870,7 +870,9 @@ let currentLanguage = "de";
 
 let importedListingData = null;
 
+let hasAnalyzed = false;
 
+let languageChangeInProgress = false;
 const translations = {
 
 de: {
@@ -1301,145 +1303,152 @@ it: {
 };
 
 
-function setLanguage(lang) {
+async function setLanguage(lang) {
+
+    if (!translations[lang]) {
+        return;
+    }
+
+    // Evita richieste sovrapposte se si cliccano più lingue velocemente.
+    if (languageChangeInProgress) {
+        return;
+    }
+
+    const previousLanguage = currentLanguage;
+    const languageActuallyChanged = previousLanguage !== lang;
 
     currentLanguage = lang;
-
     document.documentElement.lang = lang;
 
     const t = translations[lang];
 
-    document.getElementById("subtitle").textContent =
-        t.subtitle;
+    const importStatus = document.getElementById("importStatus");
 
-    document.getElementById("importTitle").textContent =
-        t.importTitle;
+    if (
+        importStatus.style.display !== "none" &&
+        importStatus.classList.contains("import-success")
+) {
+        importStatus.textContent = t.importSuccess;
+}
 
-    document.getElementById("importDescription").textContent =
-        t.importDescription;
 
-    document.getElementById("importButton").textContent =
-        t.importButton;
+    document.getElementById("subtitle").textContent = t.subtitle;
+    document.getElementById("importTitle").textContent = t.importTitle;
+    document.getElementById("importDescription").textContent = t.importDescription;
+    document.getElementById("importButton").textContent = t.importButton;
 
-    document.getElementById("fuelInfoLabel").textContent =
-        t.fuel;
+    document.getElementById("fuelInfoLabel").textContent = t.fuel;
+    document.getElementById("gearboxInfoLabel").textContent = t.gearbox;
+    document.getElementById("tuvInfoLabel").textContent = t.tuv;
+    document.getElementById("accidentInfoLabel").textContent = t.accident;
+    document.getElementById("modificationsLabel").textContent = t.modifications;
 
-    document.getElementById("gearboxInfoLabel").textContent =
-        t.gearbox;
+    document.getElementById("vehicleTitle").textContent = t.vehicleTitle;
+    document.getElementById("labelBrand").textContent = t.brand;
+    document.getElementById("labelModel").textContent = t.model;
+    document.getElementById("labelYear").textContent = t.year;
+    document.getElementById("labelPrice").textContent = t.price;
+    document.getElementById("labelKm").textContent = t.km;
+    document.getElementById("labelPower").textContent = t.power;
 
-    document.getElementById("tuvInfoLabel").textContent =
-        t.tuv;
+    document.getElementById("financeTitle").textContent = t.financeTitle;
+    document.getElementById("labelDeposit").textContent = t.deposit;
+    document.getElementById("labelMonths").textContent = t.months;
+    document.getElementById("labelInterest").textContent = t.interest;
 
-    document.getElementById("accidentInfoLabel").textContent =
-        t.accident;
+    document.getElementById("analyzeButton").textContent = t.analyze;
 
-    document.getElementById("modificationsLabel").textContent =
-        t.modifications;
+    document.getElementById("monthlyPaymentLabel").textContent = t.monthlyPayment;
+    document.getElementById("financedLabel").textContent = t.financed;
+    document.getElementById("interestTotalLabel").textContent = t.interestTotal;
+    document.getElementById("paymentsTotalLabel").textContent = t.paymentsTotal;
+    document.getElementById("totalCostLabel").textContent = t.totalCost;
 
-    document.getElementById("vehicleTitle").textContent =
-        t.vehicleTitle;
+    document.getElementById("riskTitle").textContent = t.riskTitle;
+    document.getElementById("riskDescription").textContent = t.riskDescription;
 
-    document.getElementById("labelBrand").textContent =
-        t.brand;
+    document.getElementById("analysisTitle").textContent = t.analysisTitle;
+    document.getElementById("ageLabel").textContent = t.age;
+    document.getElementById("yearlyKmLabel").textContent = t.yearlyKm;
+    document.getElementById("mileageLabel").textContent = t.mileage;
+    document.getElementById("priceKmLabel").textContent = t.priceKm;
 
-    document.getElementById("labelModel").textContent =
-        t.model;
+    document.getElementById("checklistTitle").textContent = t.checklist;
+    document.getElementById("questionsTitle").textContent = t.questions;
 
-    document.getElementById("labelYear").textContent =
-        t.year;
+    document.getElementById("specificTitle").textContent = t.specificTitle;
+    document.getElementById("specificDescription").textContent = t.specificDescription;
 
-    document.getElementById("labelPrice").textContent =
-        t.price;
+    document.getElementById("disclaimer").textContent = t.disclaimer;
 
-    document.getElementById("labelKm").textContent =
-        t.km;
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.classList.remove("active");
+        btn.disabled = false;
+    });
 
-    document.getElementById("labelPower").textContent =
-        t.power;
-
-    document.getElementById("financeTitle").textContent =
-        t.financeTitle;
-
-    document.getElementById("labelDeposit").textContent =
-        t.deposit;
-
-    document.getElementById("labelMonths").textContent =
-        t.months;
-
-    document.getElementById("labelInterest").textContent =
-        t.interest;
-
-    document.getElementById("analyzeButton").textContent =
-        t.analyze;
-
-    document.getElementById("monthlyPaymentLabel").textContent =
-        t.monthlyPayment;
-
-    document.getElementById("financedLabel").textContent =
-        t.financed;
-
-    document.getElementById("interestTotalLabel").textContent =
-        t.interestTotal;
-
-    document.getElementById("paymentsTotalLabel").textContent =
-        t.paymentsTotal;
-
-    document.getElementById("totalCostLabel").textContent =
-        t.totalCost;
-
-    document.getElementById("riskTitle").textContent =
-        t.riskTitle;
-
-    document.getElementById("riskDescription").textContent =
-        t.riskDescription;
-
-    document.getElementById("analysisTitle").textContent =
-        t.analysisTitle;
-
-    document.getElementById("ageLabel").textContent =
-        t.age;
-
-    document.getElementById("yearlyKmLabel").textContent =
-        t.yearlyKm;
-
-    document.getElementById("mileageLabel").textContent =
-        t.mileage;
-
-    document.getElementById("priceKmLabel").textContent =
-        t.priceKm;
-
-    document.getElementById("checklistTitle").textContent =
-        t.checklist;
-
-    document.getElementById("questionsTitle").textContent =
-        t.questions;
-
-    document.getElementById("specificTitle").textContent =
-        t.specificTitle;
-
-    document.getElementById("specificDescription").textContent =
-        t.specificDescription;
-
-    document.getElementById("disclaimer").textContent =
-        t.disclaimer;
-
-    document.querySelectorAll(".lang-btn").forEach(
-        button => button.classList.remove("active")
-    );
-
-    document
-        .getElementById("btn-" + lang)
-        .classList
-        .add("active");
+    document.getElementById("btn-" + lang).classList.add("active");
 
     const eta = document.getElementById("etaAuto");
 
     if (eta.dataset.value) {
+        eta.textContent = eta.dataset.value + " " + t.years;
+    }
 
-        eta.textContent =
-            eta.dataset.value
-            + " "
-            + t.years;
+    // All'avvio aggiorna solo l'interfaccia.
+    if (!languageActuallyChanged) {
+        return;
+    }
+
+    const listingUrl = document.getElementById("listingUrl").value.trim();
+
+    // Salva lo stato PRIMA del reimport:
+    // importListing non deve decidere se rifare l'analisi.
+    const mustReanalyze = hasAnalyzed;
+
+    languageChangeInProgress = true;
+
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.disabled = true;
+    });
+
+    try {
+
+        // 1. Reimporta l'annuncio nella nuova lingua.
+        if (listingUrl) {
+            const imported = await importListing(true);
+
+            if (!imported) {
+                throw new Error("Listing re-import failed.");
+            }
+        }
+
+        // 2. Se l'utente aveva già premuto Analyze,
+        // rigenera TUTTA l'analisi AI nella nuova lingua.
+        if (mustReanalyze) {
+            const analyzed = await analizzaAuto(true);
+
+            if (!analyzed) {
+                throw new Error("Automatic re-analysis failed.");
+            }
+        }
+
+    } catch (error) {
+
+        console.error("Language change error:", error);
+
+        const errorBox = document.getElementById("errorBox");
+        errorBox.textContent = translations[currentLanguage].analysisError;
+        errorBox.style.display = "block";
+
+    } finally {
+
+        languageChangeInProgress = false;
+
+        document.querySelectorAll(".lang-btn").forEach(btn => {
+            btn.disabled = false;
+        });
+
+        document.getElementById("btn-" + currentLanguage).classList.add("active");
     }
 }
 
@@ -1695,260 +1704,124 @@ function renderRiskCheck(rischi) {
 }
 
 
-async function importListing() {
+async function importListing(silent = false) {
 
-    const t =
-        translations[currentLanguage];
+    const requestLanguage = currentLanguage;
+    const t = translations[requestLanguage];
 
-    const url =
-        document
-            .getElementById("listingUrl")
-            .value
-            .trim();
-
-    const button =
-        document.getElementById("importButton");
-
-    const status =
-        document.getElementById("importStatus");
-
+    const url = document.getElementById("listingUrl").value.trim();
+    const button = document.getElementById("importButton");
+    const status = document.getElementById("importStatus");
 
     if (!url) {
 
-        status.className =
-            "import-status import-error";
+        if (!silent) {
+            status.className = "import-status import-error";
+            status.textContent = t.importError;
+            status.style.display = "block";
+        }
 
-        status.textContent =
-            t.importError;
-
-        status.style.display =
-            "block";
-
-        return;
+        return false;
     }
 
-
     button.disabled = true;
+    button.textContent = t.importing;
 
-    button.textContent =
-        t.importing;
-
-    status.style.display =
-        "none";
-
+    if (!silent) {
+        status.style.display = "none";
+    }
 
     try {
 
-        const response =
-            await fetch(
-                "/extract-listing",
-                {
-                    method: "POST",
+        const response = await fetch("/extract-listing", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                url: url,
+                lingua: requestLanguage
+            })
+        });
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+        const result = await response.json();
 
-                    body: JSON.stringify({
-                        url: url,
-                        lingua: currentLanguage
-                    })
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (
-            !response.ok
-            || !result.success
-        ) {
-
-            throw new Error(
-                result.errore
-                || "Import failed"
-            );
+        if (!response.ok || !result.success) {
+            throw new Error(result.errore || "Import failed");
         }
 
+        // Se nel frattempo la lingua è cambiata, non mostrare una risposta vecchia.
+        if (requestLanguage !== currentLanguage) {
+            return false;
+        }
 
-        const d =
-            result.dati_estratti || {};
-
+        const d = result.dati_estratti || {};
 
         importedListingData = d;
 
+        if (d.marca != null) document.getElementById("marca").value = d.marca;
+        if (d.modello != null) document.getElementById("modello").value = d.modello;
+        if (d.anno != null) document.getElementById("anno").value = d.anno;
+        if (d.prezzo != null) document.getElementById("prezzo").value = d.prezzo;
+        if (d.km != null) document.getElementById("km").value = d.km;
+        if (d.potenza_cv != null) document.getElementById("potenza").value = d.potenza_cv;
 
-        if (d.marca != null) {
+        document.getElementById("fuelInfo").textContent = mostraValore(d.carburante);
+        document.getElementById("gearboxInfo").textContent = mostraValore(d.cambio);
+        document.getElementById("tuvInfo").textContent = mostraValore(d.tuv);
+        document.getElementById("accidentInfo").textContent = mostraValore(d.incidenti);
 
-            document
-                .getElementById("marca")
-                .value = d.marca;
-        }
-
-
-        if (d.modello != null) {
-
-            document
-                .getElementById("modello")
-                .value = d.modello;
-        }
-
-
-        if (d.anno != null) {
-
-            document
-                .getElementById("anno")
-                .value = d.anno;
-        }
-
-
-        if (d.prezzo != null) {
-
-            document
-                .getElementById("prezzo")
-                .value = d.prezzo;
-        }
-
-
-        if (d.km != null) {
-
-            document
-                .getElementById("km")
-                .value = d.km;
-        }
-
-
-        if (d.potenza_cv != null) {
-
-            document
-                .getElementById("potenza")
-                .value = d.potenza_cv;
-        }
-
-
-        document
-            .getElementById("fuelInfo")
-            .textContent =
-                mostraValore(d.carburante);
-
-
-        document
-            .getElementById("gearboxInfo")
-            .textContent =
-                mostraValore(d.cambio);
-
-
-        document
-            .getElementById("tuvInfo")
-            .textContent =
-                mostraValore(d.tuv);
-
-
-        document
-            .getElementById("accidentInfo")
-            .textContent =
-                mostraValore(d.incidenti);
-
-
-        const modificationsBox =
-            document.getElementById(
-                "modificationsBox"
-            );
-
-
-        const modificationsList =
-            document.getElementById(
-                "modificationsList"
-            );
-
+        const modificationsBox = document.getElementById("modificationsBox");
+        const modificationsList = document.getElementById("modificationsList");
 
         modificationsList.innerHTML = "";
 
-
-        if (
-            Array.isArray(d.modifiche)
-            && d.modifiche.length > 0
-        ) {
+        if (Array.isArray(d.modifiche) && d.modifiche.length > 0) {
 
             d.modifiche.forEach(item => {
-
-                const li =
-                    document.createElement("li");
-
-                li.textContent =
-                    item;
-
-                modificationsList
-                    .appendChild(li);
+                const li = document.createElement("li");
+                li.textContent = item;
+                modificationsList.appendChild(li);
             });
 
-
-            modificationsBox.style.display =
-                "block";
+            modificationsBox.style.display = "block";
 
         } else {
 
-            modificationsBox.style.display =
-                "none";
+            modificationsBox.style.display = "none";
         }
 
+        document.getElementById("listingInfo").style.display = "block";
 
-        document
-            .getElementById("listingInfo")
-            .style.display =
-                "block";
+        if (!silent) {
+            status.className = "import-status import-success";
+            status.textContent = t.importSuccess;
+            status.style.display = "block";
+        }
 
+        return true;
 
-        status.className =
-            "import-status import-success";
+    } catch (error) {
 
-        status.textContent =
-            t.importSuccess;
+        console.error("Import error:", error);
 
-        status.style.display =
-            "block";
+        if (!silent) {
+            status.className = "import-status import-error";
+            status.textContent = t.importError;
+            status.style.display = "block";
+        }
 
-
-        document
-            .getElementById("vehicleTitle")
-            .scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-
-    } catch(error) {
-
-        console.error(
-            "Import error:",
-            error
-        );
-
-        status.className =
-            "import-status import-error";
-
-        status.textContent =
-            t.importError;
-
-        status.style.display =
-            "block";
-
+        return false;
 
     } finally {
 
-        button.disabled =
-            false;
-
-        button.textContent =
-            t.importButton;
+        button.disabled = false;
+        button.textContent = translations[currentLanguage].importButton;
     }
 }
 
 
-async function analizzaAuto() {
+async function analizzaAuto(silent = false) {
 
     const t =
         translations[currentLanguage];
@@ -2301,12 +2174,18 @@ async function analizzaAuto() {
                 "block";
 
 
-        document
-            .getElementById("result")
-            .scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
+        hasAnalyzed = true;
+
+        if (!silent) {
+            document
+                .getElementById("result")
+                .scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+        }
+
+        return true;
 
 
     } catch(error) {
@@ -2322,6 +2201,7 @@ async function analizzaAuto() {
         errorBox.style.display =
             "block";
 
+        return false;
 
     } finally {
 
