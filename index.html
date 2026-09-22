@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoAnalyzer AI</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -20,16 +18,45 @@
         header {
             background: #111827;
             color: white;
-            padding: 35px 20px;
-            text-align: center;
+            padding: 25px 20px 35px;
         }
 
-        header h1 {
+        .header-top {
+            max-width: 950px;
+            margin: auto;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .languages {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            width: auto;
+            margin: 0;
+            padding: 7px 11px;
+            font-size: 13px;
+            background: #374151;
+            border-radius: 6px;
+        }
+
+        .lang-btn.active {
+            background: #2563eb;
+        }
+
+        .hero {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .hero h1 {
             margin: 0;
             font-size: 34px;
         }
 
-        header p {
+        .hero p {
             margin: 8px 0 0;
             color: #d1d5db;
         }
@@ -47,13 +74,8 @@
             box-shadow: 0 4px 18px rgba(0,0,0,0.08);
         }
 
-        h2 {
-            margin-top: 0;
-        }
-
-        h3 {
-            margin-top: 28px;
-        }
+        h2 { margin-top: 0; }
+        h3 { margin-top: 28px; }
 
         .grid {
             display: grid;
@@ -96,9 +118,7 @@
             cursor: pointer;
         }
 
-        button:hover {
-            background: #1d4ed8;
-        }
+        button:hover { background: #1d4ed8; }
 
         button:disabled {
             opacity: 0.6;
@@ -152,9 +172,7 @@
             color: #92400e;
         }
 
-        ul {
-            padding-left: 22px;
-        }
+        ul { padding-left: 22px; }
 
         li {
             margin-bottom: 10px;
@@ -184,13 +202,8 @@
                 grid-template-columns: 1fr;
             }
 
-            .card {
-                padding: 20px;
-            }
-
-            header h1 {
-                font-size: 28px;
-            }
+            .card { padding: 20px; }
+            .hero h1 { font-size: 28px; }
         }
     </style>
 </head>
@@ -198,212 +211,437 @@
 <body>
 
 <header>
-    <h1>🚗 AutoAnalyzer AI</h1>
-    <p>Analizza un'auto usata prima di acquistarla</p>
+
+    <div class="header-top">
+        <div class="languages">
+            <button class="lang-btn active" id="btn-de"
+                    onclick="setLanguage('de')">🇩🇪 DE</button>
+
+            <button class="lang-btn" id="btn-en"
+                    onclick="setLanguage('en')">🇬🇧 EN</button>
+
+            <button class="lang-btn" id="btn-it"
+                    onclick="setLanguage('it')">🇮🇹 IT</button>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>🚗 AutoAnalyzer AI</h1>
+        <p id="subtitle"></p>
+    </div>
+
 </header>
+
 
 <div class="container">
 
-    <div class="card">
+<div class="card">
 
-        <!-- DATI AUTO -->
+    <h2 id="vehicleTitle"></h2>
 
-        <h2>🚘 Dati dell'auto</h2>
+    <div class="grid">
 
-        <div class="grid">
-
-            <div class="field">
-                <label>Marca</label>
-                <input id="marca" value="Audi">
-            </div>
-
-            <div class="field">
-                <label>Modello</label>
-                <input id="modello" value="A7 50 TDI quattro">
-            </div>
-
-            <div class="field">
-                <label>Anno</label>
-                <input id="anno" type="number" value="2020">
-            </div>
-
-            <div class="field">
-                <label>Prezzo (€)</label>
-                <input id="prezzo" type="number" value="22980">
-            </div>
-
-            <div class="field">
-                <label>Chilometri</label>
-                <input id="km" type="number" value="59315">
-            </div>
-
-            <div class="field">
-                <label>Potenza (CV)</label>
-                <input id="potenza" type="number" value="286">
-            </div>
-
+        <div class="field">
+            <label id="labelBrand"></label>
+            <input id="marca" value="Audi">
         </div>
 
-
-        <!-- FINANZIAMENTO -->
-
-        <h2 style="margin-top:35px;">
-            💶 Finanziamento
-        </h2>
-
-        <div class="grid">
-
-            <div class="field">
-                <label>Anticipo (€)</label>
-                <input id="anticipo" type="number" value="2000">
-            </div>
-
-            <div class="field">
-                <label>Durata (mesi)</label>
-                <input id="durata" type="number" value="84">
-            </div>
-
-            <div class="field">
-                <label>Tasso annuo (%)</label>
-                <input id="tasso" type="number" step="0.1" value="8">
-            </div>
-
+        <div class="field">
+            <label id="labelModel"></label>
+            <input id="modello" value="A7 50 TDI quattro">
         </div>
 
-
-        <button id="analyzeButton" onclick="analizzaAuto()">
-            🔎 Analizza auto
-        </button>
-
-
-        <div class="error" id="errorBox"></div>
-
-
-        <!-- RISULTATI FINANZIAMENTO -->
-
-        <div class="section-result" id="result">
-
-            <h2 id="nomeAuto"></h2>
-
-            <p>Rata mensile stimata</p>
-
-            <div class="price" id="rata"></div>
-
-
-            <div class="result-grid">
-
-                <div class="result-box">
-                    <strong>Capitale finanziato</strong>
-                    <span id="capitale"></span>
-                </div>
-
-                <div class="result-box">
-                    <strong>Interessi totali</strong>
-                    <span id="interessi"></span>
-                </div>
-
-                <div class="result-box">
-                    <strong>Totale rate</strong>
-                    <span id="totaleRate"></span>
-                </div>
-
-                <div class="result-box">
-                    <strong>Costo totale</strong>
-                    <span id="costoTotale"></span>
-                </div>
-
-            </div>
-
+        <div class="field">
+            <label id="labelYear"></label>
+            <input id="anno" type="number" value="2020">
         </div>
 
-
-        <!-- ANALISI -->
-
-        <div class="section-result" id="analysisResult">
-
-            <h2>📊 Analisi dell'auto</h2>
-
-            <div class="result-grid">
-
-                <div class="result-box">
-                    <strong>Età</strong>
-                    <span id="etaAuto"></span>
-                </div>
-
-                <div class="result-box">
-                    <strong>Km medi / anno</strong>
-                    <span id="kmAnnui"></span>
-                </div>
-
-                <div class="result-box">
-                    <strong>Chilometraggio</strong>
-                    <span id="valutazioneKm"></span>
-                </div>
-
-                <div class="result-box">
-                    <strong>Prezzo / km</strong>
-                    <span id="prezzoKm"></span>
-                </div>
-
-            </div>
-
-
-            <h3>✅ Checklist prima dell'acquisto</h3>
-
-            <ul id="checklist"></ul>
-
-
-            <h3>💬 Domande da fare al venditore</h3>
-
-            <ul id="domandeVenditore"></ul>
-
+        <div class="field">
+            <label id="labelPrice"></label>
+            <input id="prezzo" type="number" value="22980">
         </div>
 
-
-        <!-- CONTROLLI SPECIFICI -->
-
-        <div class="warning-section" id="specificResult">
-
-            <h2>
-                ⚠️ Punti specifici da controllare
-            </h2>
-
-            <p>
-                In base ai dati inseriti, presta particolare
-                attenzione a questi aspetti:
-            </p>
-
-            <ul id="controlliSpecifici"></ul>
-
+        <div class="field">
+            <label id="labelKm"></label>
+            <input id="km" type="number" value="59315">
         </div>
 
-
-        <div class="disclaimer">
-            Le informazioni fornite sono indicative e non sostituiscono
-            un controllo tecnico professionale dell'auto o un'offerta
-            finanziaria ufficiale.
+        <div class="field">
+            <label id="labelPower"></label>
+            <input id="potenza" type="number" value="286">
         </div>
 
     </div>
+
+
+    <h2 id="financeTitle" style="margin-top:35px;"></h2>
+
+    <div class="grid">
+
+        <div class="field">
+            <label id="labelDeposit"></label>
+            <input id="anticipo" type="number" value="2000">
+        </div>
+
+        <div class="field">
+            <label id="labelMonths"></label>
+            <input id="durata" type="number" value="84">
+        </div>
+
+        <div class="field">
+            <label id="labelInterest"></label>
+            <input id="tasso" type="number" step="0.1" value="8">
+        </div>
+
+    </div>
+
+
+    <button id="analyzeButton" onclick="analizzaAuto()"></button>
+
+    <div class="error" id="errorBox"></div>
+
+
+    <div class="section-result" id="result">
+
+        <h2 id="nomeAuto"></h2>
+
+        <p id="monthlyPaymentLabel"></p>
+
+        <div class="price" id="rata"></div>
+
+        <div class="result-grid">
+
+            <div class="result-box">
+                <strong id="financedLabel"></strong>
+                <span id="capitale"></span>
+            </div>
+
+            <div class="result-box">
+                <strong id="interestTotalLabel"></strong>
+                <span id="interessi"></span>
+            </div>
+
+            <div class="result-box">
+                <strong id="paymentsTotalLabel"></strong>
+                <span id="totaleRate"></span>
+            </div>
+
+            <div class="result-box">
+                <strong id="totalCostLabel"></strong>
+                <span id="costoTotale"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="section-result" id="analysisResult">
+
+        <h2 id="analysisTitle"></h2>
+
+        <div class="result-grid">
+
+            <div class="result-box">
+                <strong id="ageLabel"></strong>
+                <span id="etaAuto"></span>
+            </div>
+
+            <div class="result-box">
+                <strong id="yearlyKmLabel"></strong>
+                <span id="kmAnnui"></span>
+            </div>
+
+            <div class="result-box">
+                <strong id="mileageLabel"></strong>
+                <span id="valutazioneKm"></span>
+            </div>
+
+            <div class="result-box">
+                <strong id="priceKmLabel"></strong>
+                <span id="prezzoKm"></span>
+            </div>
+
+        </div>
+
+        <h3 id="checklistTitle"></h3>
+        <ul id="checklist"></ul>
+
+        <h3 id="questionsTitle"></h3>
+        <ul id="domandeVenditore"></ul>
+
+    </div>
+
+
+    <div class="warning-section" id="specificResult">
+
+        <h2 id="specificTitle"></h2>
+
+        <p id="specificDescription"></p>
+
+        <ul id="controlliSpecifici"></ul>
+
+    </div>
+
+
+    <div class="disclaimer" id="disclaimer"></div>
+
+</div>
 
 </div>
 
 
 <script>
 
+let currentLanguage = "de";
+
+
+const translations = {
+
+    de: {
+        subtitle: "Gebrauchtwagen vor dem Kauf intelligent analysieren",
+
+        vehicleTitle: "🚘 Fahrzeugdaten",
+        brand: "Marke",
+        model: "Modell",
+        year: "Baujahr",
+        price: "Kaufpreis (€)",
+        km: "Kilometerstand",
+        power: "Leistung (PS)",
+
+        financeTitle: "💶 Finanzierung",
+        deposit: "Anzahlung (€)",
+        months: "Laufzeit (Monate)",
+        interest: "Jahreszins (%)",
+
+        analyze: "🔎 Fahrzeug analysieren",
+        loading: "⏳ Analyse läuft...",
+
+        monthlyPayment: "Geschätzte monatliche Rate",
+        financed: "Finanzierter Betrag",
+        interestTotal: "Zinsen gesamt",
+        paymentsTotal: "Summe der Raten",
+        totalCost: "Gesamtkosten",
+
+        analysisTitle: "📊 Fahrzeuganalyse",
+        age: "Fahrzeugalter",
+        yearlyKm: "Km pro Jahr",
+        mileage: "Kilometerbewertung",
+        priceKm: "Preis pro km",
+
+        checklist: "✅ Checkliste vor dem Kauf",
+        questions: "💬 Fragen an den Verkäufer",
+
+        specificTitle: "⚠️ Wichtige Prüfpunkte",
+        specificDescription:
+            "Auf Basis der Fahrzeugdaten sollten diese Punkte besonders geprüft werden:",
+
+        years: "Jahre",
+
+        error: "Bitte überprüfe die eingegebenen Daten.",
+
+        disclaimer:
+            "Die Informationen dienen nur zur Orientierung und ersetzen keine professionelle Fahrzeugprüfung oder ein verbindliches Finanzierungsangebot."
+    },
+
+
+    en: {
+        subtitle: "Analyze a used car intelligently before you buy",
+
+        vehicleTitle: "🚘 Vehicle details",
+        brand: "Make",
+        model: "Model",
+        year: "Year",
+        price: "Purchase price (€)",
+        km: "Mileage",
+        power: "Power (HP)",
+
+        financeTitle: "💶 Financing",
+        deposit: "Down payment (€)",
+        months: "Term (months)",
+        interest: "Annual interest (%)",
+
+        analyze: "🔎 Analyze vehicle",
+        loading: "⏳ Analyzing...",
+
+        monthlyPayment: "Estimated monthly payment",
+        financed: "Amount financed",
+        interestTotal: "Total interest",
+        paymentsTotal: "Total payments",
+        totalCost: "Total cost",
+
+        analysisTitle: "📊 Vehicle analysis",
+        age: "Vehicle age",
+        yearlyKm: "Km per year",
+        mileage: "Mileage assessment",
+        priceKm: "Price per km",
+
+        checklist: "✅ Pre-purchase checklist",
+        questions: "💬 Questions for the seller",
+
+        specificTitle: "⚠️ Important points to check",
+        specificDescription:
+            "Based on the vehicle information, pay particular attention to these points:",
+
+        years: "years",
+
+        error: "Please check the information entered.",
+
+        disclaimer:
+            "The information provided is for guidance only and does not replace a professional vehicle inspection or a binding financing offer."
+    },
+
+
+    it: {
+        subtitle: "Analizza un'auto usata prima di acquistarla",
+
+        vehicleTitle: "🚘 Dati dell'auto",
+        brand: "Marca",
+        model: "Modello",
+        year: "Anno",
+        price: "Prezzo (€)",
+        km: "Chilometri",
+        power: "Potenza (CV)",
+
+        financeTitle: "💶 Finanziamento",
+        deposit: "Anticipo (€)",
+        months: "Durata (mesi)",
+        interest: "Tasso annuo (%)",
+
+        analyze: "🔎 Analizza auto",
+        loading: "⏳ Analisi in corso...",
+
+        monthlyPayment: "Rata mensile stimata",
+        financed: "Capitale finanziato",
+        interestTotal: "Interessi totali",
+        paymentsTotal: "Totale rate",
+        totalCost: "Costo totale",
+
+        analysisTitle: "📊 Analisi dell'auto",
+        age: "Età dell'auto",
+        yearlyKm: "Km medi / anno",
+        mileage: "Chilometraggio",
+        priceKm: "Prezzo / km",
+
+        checklist: "✅ Checklist prima dell'acquisto",
+        questions: "💬 Domande da fare al venditore",
+
+        specificTitle: "⚠️ Punti specifici da controllare",
+        specificDescription:
+            "In base ai dati inseriti, presta particolare attenzione a questi aspetti:",
+
+        years: "anni",
+
+        error: "Controlla i dati inseriti.",
+
+        disclaimer:
+            "Le informazioni fornite sono indicative e non sostituiscono un controllo tecnico professionale dell'auto o un'offerta finanziaria ufficiale."
+    }
+};
+
+
+function setLanguage(lang) {
+
+    currentLanguage = lang;
+
+    document.documentElement.lang = lang;
+
+    const t = translations[lang];
+
+    document.getElementById("subtitle").innerText = t.subtitle;
+
+    document.getElementById("vehicleTitle").innerText = t.vehicleTitle;
+    document.getElementById("labelBrand").innerText = t.brand;
+    document.getElementById("labelModel").innerText = t.model;
+    document.getElementById("labelYear").innerText = t.year;
+    document.getElementById("labelPrice").innerText = t.price;
+    document.getElementById("labelKm").innerText = t.km;
+    document.getElementById("labelPower").innerText = t.power;
+
+    document.getElementById("financeTitle").innerText = t.financeTitle;
+    document.getElementById("labelDeposit").innerText = t.deposit;
+    document.getElementById("labelMonths").innerText = t.months;
+    document.getElementById("labelInterest").innerText = t.interest;
+
+    document.getElementById("analyzeButton").innerText = t.analyze;
+
+    document.getElementById("monthlyPaymentLabel").innerText =
+        t.monthlyPayment;
+
+    document.getElementById("financedLabel").innerText = t.financed;
+    document.getElementById("interestTotalLabel").innerText =
+        t.interestTotal;
+    document.getElementById("paymentsTotalLabel").innerText =
+        t.paymentsTotal;
+    document.getElementById("totalCostLabel").innerText =
+        t.totalCost;
+
+    document.getElementById("analysisTitle").innerText =
+        t.analysisTitle;
+
+    document.getElementById("ageLabel").innerText = t.age;
+    document.getElementById("yearlyKmLabel").innerText =
+        t.yearlyKm;
+    document.getElementById("mileageLabel").innerText =
+        t.mileage;
+    document.getElementById("priceKmLabel").innerText =
+        t.priceKm;
+
+    document.getElementById("checklistTitle").innerText =
+        t.checklist;
+
+    document.getElementById("questionsTitle").innerText =
+        t.questions;
+
+    document.getElementById("specificTitle").innerText =
+        t.specificTitle;
+
+    document.getElementById("specificDescription").innerText =
+        t.specificDescription;
+
+    document.getElementById("disclaimer").innerText =
+        t.disclaimer;
+
+
+    document.querySelectorAll(".lang-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+    document.getElementById("btn-" + lang)
+        .classList.add("active");
+
+
+    /* Se ci sono già risultati, aggiorna le unità */
+    const eta = document.getElementById("etaAuto");
+
+    if (eta.dataset.value) {
+        eta.innerText =
+            eta.dataset.value + " " + t.years;
+    }
+}
+
+
 function euro(numero) {
 
+    const locale =
+        currentLanguage === "de"
+        ? "de-DE"
+        : currentLanguage === "it"
+        ? "it-IT"
+        : "en-GB";
+
     return Number(numero).toLocaleString(
-        "it-IT",
+        locale,
         {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            style: "currency",
+            currency: "EUR"
         }
-    ) + " €";
+    );
 }
 
 
 async function analizzaAuto() {
+
+    const t = translations[currentLanguage];
 
     const button =
         document.getElementById("analyzeButton");
@@ -411,58 +649,41 @@ async function analizzaAuto() {
     const errorBox =
         document.getElementById("errorBox");
 
-
     errorBox.style.display = "none";
 
 
     const dati = {
 
+        lingua: currentLanguage,
+
         marca:
-            document.getElementById("marca")
-                .value.trim(),
+            document.getElementById("marca").value.trim(),
 
         modello:
-            document.getElementById("modello")
-                .value.trim(),
+            document.getElementById("modello").value.trim(),
 
         anno:
-            Number(
-                document.getElementById("anno").value
-            ),
+            Number(document.getElementById("anno").value),
 
         prezzo:
-            Number(
-                document.getElementById("prezzo").value
-            ),
+            Number(document.getElementById("prezzo").value),
 
         km:
-            Number(
-                document.getElementById("km").value
-            ),
+            Number(document.getElementById("km").value),
 
         potenza_cv:
-            Number(
-                document.getElementById("potenza").value
-            ),
+            Number(document.getElementById("potenza").value),
 
         anticipo:
-            Number(
-                document.getElementById("anticipo").value
-            ),
+            Number(document.getElementById("anticipo").value),
 
         durata_mesi:
-            Number(
-                document.getElementById("durata").value
-            ),
+            Number(document.getElementById("durata").value),
 
         tasso_annuo:
-            Number(
-                document.getElementById("tasso").value
-            )
+            Number(document.getElementById("tasso").value)
     };
 
-
-    /* VALIDAZIONE */
 
     if (
         !dati.marca ||
@@ -476,19 +697,14 @@ async function analizzaAuto() {
         dati.tasso_annuo < 0
     ) {
 
-        errorBox.innerText =
-            "Controlla i dati inseriti.";
-
+        errorBox.innerText = t.error;
         errorBox.style.display = "block";
-
         return;
     }
 
 
     button.disabled = true;
-
-    button.innerText =
-        "⏳ Analisi in corso...";
+    button.innerText = t.loading;
 
 
     try {
@@ -497,169 +713,115 @@ async function analizzaAuto() {
             "/analyze",
             {
                 method: "POST",
-
                 headers: {
                     "Content-Type": "application/json"
                 },
-
                 body: JSON.stringify(dati)
             }
         );
 
 
         if (!response.ok) {
-
-            throw new Error(
-                "Errore durante l'analisi."
-            );
+            throw new Error("Server error");
         }
 
 
-        const result =
-            await response.json();
+        const result = await response.json();
 
 
-        /* NOME AUTO */
-
-        document.getElementById("nomeAuto")
-            .innerText = result.auto;
+        document.getElementById("nomeAuto").innerText =
+            result.auto;
 
 
-        /* FINANZIAMENTO */
-
-        document.getElementById("rata")
-            .innerText =
-                euro(
-                    result.finanziamento
-                        .rata_mensile
-                )
-                + " / mese";
-
-
-        document.getElementById("capitale")
-            .innerText =
-                euro(
-                    result.finanziamento
-                        .capitale_finanziato
-                );
+        document.getElementById("rata").innerText =
+            euro(result.finanziamento.rata_mensile)
+            + " / "
+            + (currentLanguage === "de"
+                ? "Monat"
+                : currentLanguage === "en"
+                ? "month"
+                : "mese");
 
 
-        document.getElementById("interessi")
-            .innerText =
-                euro(
-                    result.finanziamento
-                        .interessi_totali
-                );
+        document.getElementById("capitale").innerText =
+            euro(result.finanziamento.capitale_finanziato);
+
+        document.getElementById("interessi").innerText =
+            euro(result.finanziamento.interessi_totali);
+
+        document.getElementById("totaleRate").innerText =
+            euro(result.finanziamento.totale_rate);
+
+        document.getElementById("costoTotale").innerText =
+            euro(
+                result.finanziamento
+                    .costo_totale_con_anticipo
+            );
 
 
-        document.getElementById("totaleRate")
-            .innerText =
-                euro(
-                    result.finanziamento
-                        .totale_rate
-                );
+        const etaAuto =
+            document.getElementById("etaAuto");
+
+        etaAuto.dataset.value = result.eta_anni;
+
+        etaAuto.innerText =
+            result.eta_anni + " " + t.years;
 
 
-        document.getElementById("costoTotale")
-            .innerText =
-                euro(
-                    result.finanziamento
-                        .costo_totale_con_anticipo
-                );
+        document.getElementById("kmAnnui").innerText =
+            Number(result.analisi.km_annui)
+                .toLocaleString() + " km";
 
 
-        /* DATI AUTO */
-
-        document.getElementById("etaAuto")
-            .innerText =
-                result.eta_anni + " anni";
+        document.getElementById("valutazioneKm").innerText =
+            result.analisi.valutazione_km;
 
 
-        document.getElementById("kmAnnui")
-            .innerText =
-                Number(
-                    result.analisi.km_annui
-                ).toLocaleString("it-IT")
-                + " km";
+        document.getElementById("prezzoKm").innerText =
+            euro(result.prezzo_per_km);
 
-
-        document.getElementById("valutazioneKm")
-            .innerText =
-                result.analisi.valutazione_km;
-
-
-        document.getElementById("prezzoKm")
-            .innerText =
-                euro(result.prezzo_per_km);
-
-
-        /* CHECKLIST */
 
         const checklist =
             document.getElementById("checklist");
 
         checklist.innerHTML = "";
 
+        result.analisi.checklist.forEach(item => {
 
-        result.analisi.checklist.forEach(
-            elemento => {
+            const li = document.createElement("li");
+            li.innerText = item;
+            checklist.appendChild(li);
 
-                const li =
-                    document.createElement("li");
+        });
 
-                li.innerText = elemento;
-
-                checklist.appendChild(li);
-            }
-        );
-
-
-        /* DOMANDE */
 
         const domande =
-            document.getElementById(
-                "domandeVenditore"
-            );
+            document.getElementById("domandeVenditore");
 
         domande.innerHTML = "";
 
+        result.analisi.domande_venditore.forEach(item => {
 
-        result.analisi.domande_venditore.forEach(
-            domanda => {
+            const li = document.createElement("li");
+            li.innerText = item;
+            domande.appendChild(li);
 
-                const li =
-                    document.createElement("li");
+        });
 
-                li.innerText = domanda;
-
-                domande.appendChild(li);
-            }
-        );
-
-
-        /* CONTROLLI SPECIFICI */
 
         const specifici =
-            document.getElementById(
-                "controlliSpecifici"
-            );
+            document.getElementById("controlliSpecifici");
 
         specifici.innerHTML = "";
 
+        result.analisi.controlli_specifici.forEach(item => {
 
-        result.analisi.controlli_specifici
-            .forEach(controllo => {
+            const li = document.createElement("li");
+            li.innerText = item;
+            specifici.appendChild(li);
 
-                const li =
-                    document.createElement("li");
+        });
 
-                li.innerText = controllo;
-
-                specifici.appendChild(li);
-            });
-
-
-        /* MOSTRA TUTTO */
 
         document.getElementById("result")
             .style.display = "block";
@@ -673,26 +835,32 @@ async function analizzaAuto() {
 
         document.getElementById("result")
             .scrollIntoView({
-                behavior: "smooth",
-                block: "start"
+                behavior: "smooth"
             });
 
 
     } catch(error) {
 
         errorBox.innerText =
-            "Errore: " + error.message;
+            currentLanguage === "de"
+            ? "Bei der Analyse ist ein Fehler aufgetreten."
+            : currentLanguage === "en"
+            ? "An error occurred during the analysis."
+            : "Si è verificato un errore durante l'analisi.";
 
         errorBox.style.display = "block";
 
     } finally {
 
         button.disabled = false;
-
-        button.innerText =
-            "🔎 Analizza auto";
+        button.innerText = t.analyze;
     }
 }
+
+
+/* TEDESCO PREDEFINITO */
+
+setLanguage("de");
 
 </script>
 
