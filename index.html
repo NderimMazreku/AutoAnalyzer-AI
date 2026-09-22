@@ -513,6 +513,54 @@ li {
     }
 }
 
+
+.how-it-works {
+    margin: 22px 0 28px;
+    padding: 22px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.how-it-works h2 {
+    margin: 0 0 16px;
+    font-size: 20px;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.step-card {
+    padding: 16px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.step-card strong {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.site-disclaimer {
+    margin-top: 30px;
+    padding: 16px 18px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+@media (max-width: 700px) {
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 </style>
 
 </head>
@@ -568,6 +616,28 @@ li {
 
 
 <div class="container">
+
+
+<section class="how-it-works">
+    <h2 id="howTitle">So funktioniert AutoAnalyzer</h2>
+
+    <div class="steps-grid">
+        <div class="step-card">
+            <strong id="step1Title">🔗 Anzeige einfügen</strong>
+            <span id="step1Text">Link einer Gebrauchtwagenanzeige einfügen.</span>
+        </div>
+
+        <div class="step-card">
+            <strong id="step2Title">🤖 KI-Analyse starten</strong>
+            <span id="step2Text">Fahrzeugdaten, Risiken, Laufleistung und Finanzierung analysieren.</span>
+        </div>
+
+        <div class="step-card">
+            <strong id="step3Title">📄 Ergebnis erhalten</strong>
+            <span id="step3Text">Auto Score, Prüfhinweise, Verkäuferfragen und PDF-Bericht erhalten.</span>
+        </div>
+    </div>
+</section>
 
 <div class="card">
 
@@ -1445,6 +1515,55 @@ it: {
 };
 
 
+
+function updateMarketingTexts(lang) {
+
+    const marketing = {
+        de: {
+            howTitle: "So funktioniert AutoAnalyzer",
+            step1Title: "🔗 Anzeige einfügen",
+            step1Text: "Link einer Gebrauchtwagenanzeige einfügen.",
+            step2Title: "🤖 KI-Analyse starten",
+            step2Text: "Fahrzeugdaten, Risiken, Laufleistung und Finanzierung analysieren.",
+            step3Title: "📄 Ergebnis erhalten",
+            step3Text: "Auto Score, Prüfhinweise, Verkäuferfragen und PDF-Bericht erhalten.",
+            disclaimer: "<strong>Hinweis:</strong> AutoAnalyzer AI dient als Entscheidungshilfe beim Gebrauchtwagenkauf. Die Ergebnisse basieren auf den verfügbaren Angaben der Fahrzeuganzeige und einer KI-gestützten Analyse. Sie ersetzen keine technische Fahrzeugprüfung, Diagnose oder professionelle Kaufberatung."
+        },
+        en: {
+            howTitle: "How AutoAnalyzer works",
+            step1Title: "🔗 Paste a listing",
+            step1Text: "Paste the link to a used-car listing.",
+            step2Title: "🤖 Start AI analysis",
+            step2Text: "Analyze vehicle data, risks, mileage and financing.",
+            step3Title: "📄 Get your result",
+            step3Text: "Receive an Auto Score, inspection tips, seller questions and a PDF report.",
+            disclaimer: "<strong>Note:</strong> AutoAnalyzer AI is a decision-support tool for used-car purchases. Results are based on the information available in the vehicle listing and AI-assisted analysis. They do not replace a technical vehicle inspection, diagnosis or professional purchasing advice."
+        },
+        it: {
+            howTitle: "Come funziona AutoAnalyzer",
+            step1Title: "🔗 Incolla un annuncio",
+            step1Text: "Incolla il link di un annuncio di auto usata.",
+            step2Title: "🤖 Avvia l'analisi AI",
+            step2Text: "Analizza dati del veicolo, rischi, chilometraggio e finanziamento.",
+            step3Title: "📄 Ottieni il risultato",
+            step3Text: "Ricevi Auto Score, controlli consigliati, domande al venditore e report PDF.",
+            disclaimer: "<strong>Nota:</strong> AutoAnalyzer AI è uno strumento di supporto alla decisione per l'acquisto di auto usate. I risultati si basano sulle informazioni disponibili nell'annuncio e su un'analisi assistita dall'AI. Non sostituiscono un controllo tecnico del veicolo, una diagnosi o una consulenza professionale all'acquisto."
+        }
+    };
+
+    const x = marketing[lang] || marketing.de;
+
+    document.getElementById("howTitle").textContent = x.howTitle;
+    document.getElementById("step1Title").textContent = x.step1Title;
+    document.getElementById("step1Text").textContent = x.step1Text;
+    document.getElementById("step2Title").textContent = x.step2Title;
+    document.getElementById("step2Text").textContent = x.step2Text;
+    document.getElementById("step3Title").textContent = x.step3Title;
+    document.getElementById("step3Text").textContent = x.step3Text;
+    document.getElementById("siteDisclaimer").innerHTML = x.disclaimer;
+}
+
+
 async function setLanguage(lang) {
 
     if (!translations[lang]) {
@@ -1460,6 +1579,8 @@ async function setLanguage(lang) {
     const languageActuallyChanged = previousLanguage !== lang;
 
     currentLanguage = lang;
+
+    updateMarketingTexts(lang);
     document.documentElement.lang = lang;
 
     const t = translations[lang];
@@ -2776,6 +2897,11 @@ setLanguage("de");
 
 </script>
 
+
+
+<div class="site-disclaimer" id="siteDisclaimer">
+    <strong>Hinweis:</strong> AutoAnalyzer AI dient als Entscheidungshilfe beim Gebrauchtwagenkauf. Die Ergebnisse basieren auf den verfügbaren Angaben der Fahrzeuganzeige und einer KI-gestützten Analyse. Sie ersetzen keine technische Fahrzeugprüfung, Diagnose oder professionelle Kaufberatung.
+</div>
 
 </body>
 
