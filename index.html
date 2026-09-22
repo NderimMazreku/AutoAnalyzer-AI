@@ -568,6 +568,7 @@
 <script>
 
 let currentLanguage = "de";
+let importedListingData = null;
 
 
 const translations = {
@@ -923,6 +924,7 @@ async function importListing() {
         }
 
         const d = result.dati_estratti;
+        importedListingData = d;
 
         if (d.marca !== null) {
             document.getElementById("marca").value = d.marca;
@@ -1024,35 +1026,50 @@ async function analizzaAuto() {
 
     const dati = {
 
-        lingua: currentLanguage,
+    lingua: currentLanguage,
 
-        marca:
-            document.getElementById("marca").value.trim(),
+    marca:
+        document.getElementById("marca").value.trim(),
 
-        modello:
-            document.getElementById("modello").value.trim(),
+    modello:
+        document.getElementById("modello").value.trim(),
 
-        anno:
-            Number(document.getElementById("anno").value),
+    anno:
+        Number(document.getElementById("anno").value),
 
-        prezzo:
-            Number(document.getElementById("prezzo").value),
+    prezzo:
+        Number(document.getElementById("prezzo").value),
 
-        km:
-            Number(document.getElementById("km").value),
+    km:
+        Number(document.getElementById("km").value),
 
-        potenza_cv:
-            Number(document.getElementById("potenza").value),
+    potenza_cv:
+        Number(document.getElementById("potenza").value),
 
-        anticipo:
-            Number(document.getElementById("anticipo").value),
+    anticipo:
+        Number(document.getElementById("anticipo").value),
 
-        durata_mesi:
-            Number(document.getElementById("durata").value),
+    durata_mesi:
+        Number(document.getElementById("durata").value),
 
-        tasso_annuo:
-            Number(document.getElementById("tasso").value)
-    };
+    tasso_annuo:
+        Number(document.getElementById("tasso").value),
+
+    carburante:
+        importedListingData?.carburante ?? null,
+
+    cambio:
+        importedListingData?.cambio ?? null,
+
+    tuv:
+        importedListingData?.tuv ?? null,
+
+    incidenti:
+        importedListingData?.incidenti ?? null,
+
+    modifiche:
+        importedListingData?.modifiche ?? []
+};
 
     if (
         !dati.marca ||

@@ -43,6 +43,11 @@ class AutoData(BaseModel):
     tasso_annuo: float = 8
     lingua: str = "de"
 
+    carburante: str | None = None
+    cambio: str | None = None
+    tuv: str | None = None
+    incidenti: str | None = None
+    modifiche: list[str] = []
 
 class ListingURL(BaseModel):
     url: str
@@ -205,7 +210,11 @@ Year: {auto.anno}
 Mileage: {auto.km} km
 Power: {auto.potenza_cv} HP
 Price: {auto.prezzo} EUR
-
+Fuel: {auto.carburante or "Not provided"}
+Transmission: {auto.cambio or "Not provided"}
+TÜV/HU: {auto.tuv or "Not provided"}
+Accident information: {auto.incidenti or "Not provided"}
+Modifications/tuning: {", ".join(auto.modifiche) if auto.modifiche else "None provided"}
 IMPORTANT LANGUAGE INSTRUCTION:
 
 The selected language is {language}.
@@ -249,6 +258,18 @@ Rules:
 - Do not invent accidents.
 - Do not invent service history.
 - Do not invent defects.
+
+- If modifications or tuning are provided, specifically explain what should
+  be checked because of those modifications.
+
+- If Stage 1, Stage 2 or Stage 3 tuning is present, include appropriate
+  checks concerning engine, turbocharger, drivetrain, clutch/transmission,
+  emissions equipment and whether the modifications are legally documented,
+  where relevant.
+
+- Use TÜV/HU, accident information, fuel type and transmission information
+  when generating the checks and seller questions.
+
 - Maximum 6 items per list.
 - JSON only.
 """
