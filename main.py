@@ -143,7 +143,8 @@ def get_language_name(lang):
     languages = {
         "de": "German",
         "en": "English",
-        "it": "Italian"
+        "it": "Italian",
+        "es": "Spanish"
     }
 
     return languages.get(lang, "German")
@@ -259,6 +260,42 @@ def get_local_text(lang):
                 "Controllare sottoscocca e sospensioni.",
                 "Verificare lo storico service tramite fatture."
             ]
+        },
+
+        "es": {
+            "km_low": "Kilometraje anual bajo",
+            "km_normal": "Kilometraje anual normal",
+            "km_high": "Kilometraje anual alto",
+
+            "checklist": [
+                "Comprobar el historial de mantenimiento y el libro de revisiones.",
+                "Comprobar la ITV/TÜV y su validez.",
+                "Preguntar por posibles daños de accidentes anteriores.",
+                "Comprobar el número de propietarios anteriores.",
+                "Revisar neumáticos y frenos.",
+                "Revisar la carrocería y la pintura en busca de reparaciones.",
+                "Comprobar si hay testigos de advertencia encendidos en el cuadro de instrumentos.",
+                "Realizar una prueba de conducción completa.",
+                "Comparar el VIN/número de bastidor con la documentación del vehículo."
+            ],
+
+            "fallback_questions": [
+                "¿Por qué se vende el vehículo?",
+                "¿Se conocen accidentes o repintados?",
+                "¿Está completamente documentado el historial de mantenimiento?",
+                "¿Qué reparaciones se han realizado recientemente?",
+                "¿Hay algún problema técnico conocido actualmente?",
+                "¿Se puede revisar el vehículo en un taller independiente antes de comprarlo?"
+            ],
+
+            "fallback_checks": [
+                "Comprobar el motor en busca de ruidos inusuales y fugas.",
+                "Comprobar la transmisión y el embrague durante la prueba de conducción.",
+                "Revisar frenos y neumáticos.",
+                "Realizar una lectura de la memoria de averías mediante diagnóstico.",
+                "Revisar los bajos y la suspensión.",
+                "Verificar el historial de mantenimiento mediante facturas."
+            ]
         }
     }
 
@@ -304,7 +341,7 @@ IMPORTANT LANGUAGE INSTRUCTION:
 The selected language is {language}.
 
 Every user-facing sentence in your response MUST be written in {language}.
-Do not use Italian unless the selected language is Italian.
+Do not use any language other than the selected language.
 
 Your task is to help the buyer understand what should be checked
 before purchasing this vehicle.
@@ -634,7 +671,7 @@ Maximum 6 items per list.
 @app.post("/analyze")
 def analyze_auto(auto: AutoData, request: Request):
 
-    if auto.lingua not in ["de", "en", "it"]:
+    if auto.lingua not in ["de", "en", "it", "es"]:
         auto.lingua = "de"
 
     local = get_local_text(auto.lingua)
@@ -1007,7 +1044,7 @@ def _pdf_money(value, lang="de"):
         return "-"
 
     formatted = f"{number:,.2f}"
-    if lang in ["de", "it"]:
+    if lang in ["de", "it", "es"]:
         formatted = formatted.replace(",", "X").replace(".", ",").replace("X", ".")
     return formatted + " EUR"
 
@@ -1088,6 +1125,31 @@ def _pdf_labels(lang):
             "manutenzione": "Manutenzione", "incidenti_carrozzeria": "Incidenti & Carrozzeria",
             "costi": "Costi",
             "disclaimer": "Nota: questo report si basa sulle informazioni disponibili e non sostituisce un controllo tecnico professionale dell'auto o un'offerta finanziaria vincolante."
+        },
+        "es": {
+            "report": "Análisis del vehículo - Informe PDF",
+            "generated": "Generado el",
+            "vehicle": "Datos del vehículo",
+            "finance": "Financiación",
+            "score": "Auto Score",
+            "summary": "Resumen de IA",
+            "risk": "Análisis de riesgos con IA",
+            "checks": "Lista de comprobación antes de comprar",
+            "specific": "Puntos importantes a comprobar",
+            "questions": "Preguntas para el vendedor",
+            "make": "Marca", "model": "Modelo", "year": "Año",
+            "price": "Precio de compra", "km": "Kilometraje", "power": "Potencia",
+            "fuel": "Combustible", "gearbox": "Transmisión", "tuv": "ITV / TÜV",
+            "accident": "Información sobre accidentes", "mods": "Modificaciones / tuning",
+            "deposit": "Entrada", "months": "Plazo", "interest": "Interés anual",
+            "monthly": "Cuota mensual", "financed": "Importe financiado",
+            "total_interest": "Intereses totales", "payments": "Total de cuotas",
+            "total_cost": "Coste total", "years": "años", "months_unit": "meses",
+            "low": "BAJO", "medium": "MEDIO", "high": "ALTO",
+            "motore_tuning": "Motor y tuning", "legalita_tuv": "Legalidad e ITV",
+            "manutenzione": "Mantenimiento", "incidenti_carrozzeria": "Accidentes y carrocería",
+            "costi": "Costes",
+            "disclaimer": "Nota: este informe se basa en la información disponible y no sustituye una inspección técnica profesional del vehículo ni una oferta de financiación vinculante."
         }
     }
     return labels.get(lang, labels["de"])
@@ -1120,7 +1182,7 @@ def _pdf_page_number(canvas, doc):
 def build_pdf_report(payload: PDFReportRequest):
     auto = payload.auto
     result = payload.result if isinstance(payload.result, dict) else {}
-    lang = auto.lingua if auto.lingua in ["de", "en", "it"] else "de"
+    lang = auto.lingua if auto.lingua in ["de", "en", "it", "es"] else "de"
     t = _pdf_labels(lang)
 
     analysis = result.get("analisi", {}) if isinstance(result.get("analisi"), dict) else {}
@@ -1402,6 +1464,16 @@ Examples:
 - August 2027 -> "Agosto 2027"
 - accident-free -> "Senza incidenti"
 
+If the selected language is Spanish, use Spanish terms.
+
+Examples:
+- manual transmission -> "Manual"
+- automatic transmission -> "Automático"
+- petrol -> "Gasolina"
+- diesel -> "Diésel"
+- August 2027 -> "Agosto 2027"
+- accident-free -> "Sin accidentes"
+
 Do NOT translate:
 
 - vehicle manufacturer names
@@ -1543,20 +1615,18 @@ def extract_listing(data: ListingURL, request: Request):
 
     url = data.url.strip()
 
-    if data.lingua not in ["de", "en", "it"]:
+    if data.lingua not in ["de", "en", "it", "es"]:
         data.lingua = "de"
 
     valido, errore = url_pubblico_valido(url)
 
     if not valido:
-
         return {
             "success": False,
             "errore": errore
         }
 
     headers = {
-
         "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -1584,7 +1654,6 @@ def extract_listing(data: ListingURL, request: Request):
             location = response.headers.get("Location")
 
             if not location:
-
                 return {
                     "success": False,
                     "errore": "Redirect non valido."
@@ -1595,7 +1664,6 @@ def extract_listing(data: ListingURL, request: Request):
             valido, errore = url_pubblico_valido(redirect_url)
 
             if not valido:
-
                 return {
                     "success": False,
                     "errore": errore
@@ -1609,6 +1677,19 @@ def extract_listing(data: ListingURL, request: Request):
             )
 
             url = redirect_url
+
+        # Gestione specifica del blocco mobile.de
+        if response.status_code == 403:
+
+            return {
+                "success": False,
+                "errore": (
+                    "mobile.de blocca l'importazione automatica "
+                    "di questo annuncio. "
+                    "Prova con un altro sito oppure inserisci "
+                    "i dati dell'auto manualmente."
+                )
+            }
 
         if response.status_code != 200:
 
@@ -1672,7 +1753,10 @@ def extract_listing(data: ListingURL, request: Request):
             element.decompose()
 
         if soup.title:
-            titolo = soup.title.get_text(" ", strip=True)
+            titolo = soup.title.get_text(
+                " ",
+                strip=True
+            )
         else:
             titolo = ""
 
@@ -1688,7 +1772,8 @@ def extract_listing(data: ListingURL, request: Request):
             return {
                 "success": False,
                 "errore":
-                    "Non è stato possibile leggere il contenuto dell'annuncio."
+                    "Non è stato possibile leggere "
+                    "il contenuto dell'annuncio."
             }
 
         _check_daily_limit(
@@ -1729,23 +1814,32 @@ def extract_listing(data: ListingURL, request: Request):
 
         return {
             "success": False,
-            "errore": "Timeout durante il caricamento dell'annuncio."
+            "errore":
+                "Timeout durante il caricamento dell'annuncio."
         }
 
     except requests.RequestException as e:
 
-        print("Listing request error:", repr(e))
+        print(
+            "Listing request error:",
+            repr(e)
+        )
 
         return {
             "success": False,
-            "errore": "Impossibile caricare l'annuncio."
+            "errore":
+                "Impossibile caricare l'annuncio."
         }
 
     except Exception as e:
 
-        print("Listing import error:", repr(e))
+        print(
+            "Listing import error:",
+            repr(e)
+        )
 
         return {
             "success": False,
-            "errore": "Errore durante l'importazione dell'annuncio."
+            "errore":
+                "Errore durante l'importazione dell'annuncio."
         }
