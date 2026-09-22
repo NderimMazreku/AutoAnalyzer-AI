@@ -1682,6 +1682,15 @@ async function setLanguage(lang) {
     currentLanguage = lang;
 
     const t = translations[lang];
+    const importStatus = document.getElementById("importStatus");
+
+    if (importStatus.classList.contains("import-success")) {
+    	importStatus.textContent = t.importSuccess;
+	}
+
+    if (importStatus.classList.contains("import-error")) {
+        importStatus.textContent = t.importError;
+}
 
     /*
      * =========================
